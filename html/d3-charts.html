@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+.line {
+  fill: none;
+  stroke: rgb(100,100,100);
+  stroke-width: 4px;
+}
+
+.area {
+  stroke: rgb(100,100,100);
+  stroke-width: 4px;
+  fill: lightsteelblue;
+}
+
+.grid line {
+  stroke: rgba(150,150,240,0.1);
+  stroke-width: 5px;
+}
+
+h2 {
+  font-weight: lighter;
+  color: rgb(100,100,100);
+}
+</style>
+<body>
+<!-- load the d3.js library -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 20, right: 20, bottom: 50, left: 70},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// parse the date / time
+var parseTime = d3.timeParse("%d-%b-%y");
+
+// set the ranges
+var x = d3.scaleLinear().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+var divCharts = d3.select("body").append("div").attr("class","charts");
+
+// Get the data
+d3.csv("data.csv", function(error, data) {
+  if (error) throw error;
+  window.data = data;
+
+  var dimensions = data.columns.filter( c => c != "probability");
+
+  // dimensionColor = d3. line().curve(d3.curveCardinal)
+  //   .domain([1,dimensions.length/2,dimensions.length])
+  //   .interpolate(d3.interpolateLab)
+  //   .range([d3.rgb("#772200"), d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+
+  var dimensionColor =  d3.scaleSequential(d3.interpolateInferno)
+      .domain([dimensions.length,0]);
+
+  window.dimensionColor = dimensionColor;
+  dimensions.forEach(
+    ( dimension, key ) => {
+
+      // define the line
+      var area = d3.area()
+          .curve(d3.curveCardinal)
+          .x(function(d) { debugger; return x(d.probability); })
+          .y1(function(d) { debugger; return y(d[dimension]); });
+
+      area.y0(y(0))
+
+      // define the line
+      var valueline = d3.line()
+          .curve(d3.curveCardinal)
+          .x(function(d) { return x(d.probability); })
+          .y(function(d) { return y(d[dimension]); });
+
+      window.valueline = valueline;
+
+      var divChart = divCharts.append("div").attr("class","chart");
+
+      divChart.append("h2").text(dimension);
+
+      // append the svg obgect to the body of the page
+      // appends a 'group' element to 'svg'
+      // moves the 'group' element to the top left margin
+      var svg = divChart.append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+
+      // Scale the range of the data
+      // x.domain(d3.extent(data, function(d) { return d.probability; }));
+      x.domain([0, 100]);
+      // y.domain([0, d3.max(data, function(d) { return d.perception; })]);
+      y.domain([0, 100]);
+
+      // gridlines in x axis function
+      function make_x_gridlines() {
+          return d3.axisBottom(x)
+              .ticks(5)
+      }
+
+      // gridlines in y axis function
+      function make_y_gridlines() {
+          return d3.axisLeft(y)
+              .ticks(5)
+      }
+
+      // add the X gridlines
+      svg.append("g")
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + height + ")")
+        .call(make_x_gridlines()
+            .tickSize(-height)
+            .tickFormat("")
+        )
+
+      // add the Y gridlines
+      svg.append("g")
+        .attr("class", "grid")
+        .call(make_y_gridlines()
+            .tickSize(-width)
+            .tickFormat("")
+        )
+
+      // Add the valueline path.
+      // svg.append("path")
+      //     .data([data])
+      //     .attr("class", "line")
+      //     .attr("d", valueline);
+
+      svg.append("path")
+          .data([data])
+          .attr("class", "area")
+          .attr("style", "fill:"+dimensionColor(key))
+          .attr("d", area);
+      // Add the x Axis
+      svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+      // text label for the x axis
+      svg.append("text")
+          .attr("transform",
+                "translate(" + (width/2) + " ," +
+                               (height + margin.top + 20) + ")")
+          .style("text-anchor", "middle")
+          .text("Probability");
+
+      // Add the y Axis
+      svg.append("g")
+          .call(d3.axisLeft(y));
+
+      // text label for the y axis
+      svg.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0 - margin.left)
+          .attr("x",0 - (height / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Perception");
+    }
+  );
+});
+</script>
+</body>
+</html>

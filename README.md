@@ -1,10 +1,10 @@
 # Perceptions Of Probability
 This project defines an extra dimension to task estimation based on this study https://github.com/zonination/perceptions.
 
-# Draft on Google Docs
+## Draft on Google Docs
 A draft of the project is running on https://docs.google.com/spreadsheets/d/1DDj2PIKxt8Pk0GD5m7FDDEv93QS1qBK82moUxwcK7mA/edit?usp=sharing
 
-# The Process
+## The Process
 
 The estimation process, is similar to the Agile Cards, but instead of just givin one value, each developer gives 3 answers:
 - In the optmist scenario, what is the complexity of this task? 3 for example
@@ -13,25 +13,28 @@ The estimation process, is similar to the Agile Cards, but instead of just givin
 
 Based on this values - and optionaly the error margin - we can calculate the safe range of values.
 
-# Likely Perception List:
+## Likely Perception List:
 
-## Almost Certainly
-## Highly Likely	
-## Very Good Chance	
-## Likely	
-## Probable	
-## Probably	
-## We Believe	 
-## Better Than Even	
-## About Even	
-## We Doubt	
-## Improbable	
-## Probably Not	
-## Unlikely	
-## Little Chance	
-## Chances Are Slight
-## Highly Unlikely	
-## Almost No Chance
+### Almost Certainly
+### Highly Likely	
+### Very Good Chance	
+### Likely	
+### Probable	
+### Probably	
+### We Believe	 
+### Better Than Even	
+### About Even	
+### We Doubt	
+### Improbable	
+### Probably Not	
+### Unlikely	
+### Little Chance	
+  ![Little Chance](images/4-Little-Chance.png "Little Chance")
+### Chances Are Slight
+  ![Chances Are Slight Chart](images/3-Chances-Are-Slight.png "Chances Are Slight")
+### Highly Unlikely
+  ![Highly Unlikely Chart](images/2-Highly-Unlikely.png "Highly Unlikely")
+### Almost No Chance
   ![Almost No Chance Chart](images/1-Almost-No-Change.png "Almost no Chance")
 
 

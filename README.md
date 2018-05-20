@@ -42,7 +42,7 @@ Based on this values - and optionaly the error margin - we can calculate the saf
 ### Unlikely
   ![Unlikely Chart](images/5-Unlikely.svg "Unlikely")
 ### Little Chance
-  ![Little Chance](images/4-Little-Change.svg "Little Chance")
+  ![Little Chance](images/4-Little-Chance.svg "Little Chance")
 ### Chances Are Slight
   ![Chances Are Slight Chart](images/3-Chances-Are-Slight.svg "Chances Are Slight")
 ### Highly Unlikely

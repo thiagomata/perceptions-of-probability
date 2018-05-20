@@ -15,23 +15,23 @@ Based on this values - and optionaly the error margin - we can calculate the saf
 
 # Likely Perception List:
 
-- Almost Certainly
-- Highly Likely	
-- Very Good Chance	
-- Likely	
-- Probable	
-- Probably	
-- We Believe	 
-- Better Than Even	
-- About Even	
-- We Doubt	
-- Improbable	
-- Probably Not	
-- Unlikely	
-- Little Chance	
-- Chances Are Slight
-- Highly Unlikely	
-- Almost No Chance
+## Almost Certainly
+## Highly Likely	
+## Very Good Chance	
+## Likely	
+## Probable	
+## Probably	
+## We Believe	 
+## Better Than Even	
+## About Even	
+## We Doubt	
+## Improbable	
+## Probably Not	
+## Unlikely	
+## Little Chance	
+## Chances Are Slight
+## Highly Unlikely	
+## Almost No Chance
   ![Almost No Chance Chart](images/1-Almost-No-Change.png "Almost no Chance")
 
 

@@ -87,9 +87,6 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       divChart.append("h2").text(dimension);
 
-      // append the svg obgect to the body of the page
-      // appends a 'group' element to 'svg'
-      // moves the 'group' element to the top left margin
       var svg = divChart.append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
@@ -99,9 +96,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
 
       // Scale the range of the data
-      // x.domain(d3.extent(data, function(d) { return d.probability; }));
       x.domain([0, 100]);
-      // y.domain([0, d3.max(data, function(d) { return d.perception; })]);
       y.domain([0, 100]);
 
       // gridlines in x axis function

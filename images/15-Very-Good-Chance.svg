@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="960" height="500" version="1.1" baseProfile="full" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .line { fill: none; stroke: rgb(100,100,100); stroke-width: 4px; }
+    .area { stroke: rgb(100,100,100); stroke-width: 4px; fill: lightsteelblue; }
+    .grid line { stroke: rgba(150,150,240,0.1); stroke-width: 5px; }
+  </style>
+  <g transform="translate(70,20)">
+    <g class="grid" transform="translate(0,430)" fill="none" font-size="10" font-family="sans-serif" text-anchor="middle">
+      <path class="domain" stroke="#000" d="M0.5,-430V0.5H870.5V-430">
+      </path>
+      <g class="tick" opacity="1" transform="translate(0.5,0)">
+        <line stroke="#000" y2="-430">
+        </line>
+        <text fill="#000" y="3" dy="0.71em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(174.5,0)">
+        <line stroke="#000" y2="-430">
+        </line>
+        <text fill="#000" y="3" dy="0.71em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(348.5,0)">
+        <line stroke="#000" y2="-430">
+        </line>
+        <text fill="#000" y="3" dy="0.71em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(522.5,0)">
+        <line stroke="#000" y2="-430">
+        </line>
+        <text fill="#000" y="3" dy="0.71em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(696.5,0)">
+        <line stroke="#000" y2="-430">
+        </line>
+        <text fill="#000" y="3" dy="0.71em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(870.5,0)">
+        <line stroke="#000" y2="-430">
+        </line>
+        <text fill="#000" y="3" dy="0.71em">
+        </text>
+      </g>
+    </g>
+    <g class="grid" fill="none" font-size="10" font-family="sans-serif" text-anchor="end">
+      <path class="domain" stroke="#000" d="M870,430.5H0.5V0.5H870">
+      </path>
+      <g class="tick" opacity="1" transform="translate(0,430.5)">
+        <line stroke="#000" x2="870">
+        </line>
+        <text fill="#000" x="-3" dy="0.32em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,344.5)">
+        <line stroke="#000" x2="870">
+        </line>
+        <text fill="#000" x="-3" dy="0.32em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,258.5)">
+        <line stroke="#000" x2="870">
+        </line>
+        <text fill="#000" x="-3" dy="0.32em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,172.5)">
+        <line stroke="#000" x2="870">
+        </line>
+        <text fill="#000" x="-3" dy="0.32em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,86.5)">
+        <line stroke="#000" x2="870">
+        </line>
+        <text fill="#000" x="-3" dy="0.32em">
+        </text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,0.5)">
+        <line stroke="#000" x2="870">
+        </line>
+        <text fill="#000" x="-3" dy="0.32em">
+        </text>
+      </g>
+    </g>
+    <path class="area" style="fill:#f8cd37" d="M0,430C0,430,29,430,43.5,430C58,430,72.5,430,87,430C101.5,430,116,430,130.5,430C145,430,159.5,430,174,430C188.5,430,203,430,217.5,430C232,430,246.5,430,261,430C275.5,430,290,430,304.5,430C319,430,333.5,430,348,430C362.5,430,377,430,391.5,430C406,430,420.5,430.00000000000006,435,430C449.49999999999994,429.9999999999999,464.0000000000001,429.99999999999994,478.50000000000006,430C493.00000000000006,430.00000000000006,507.58062355804907,431.52912754426035,522,430C536.5824575529514,428.45357823918425,551.8107762929054,427.4647382441106,565.5,420.669C581.0455799796785,412.9517112292697,595.4723729122746,398.5720019293923,609,383.259C624.8318412417274,365.3376739678548,635.6448232797251,331.85846914198845,652.5,317.813C665.5813855719485,306.9122423019662,682.9176755752328,295.2569620256034,696,299.15099999999995C712.8525455923448,304.1672685445715,722.142157341426,355.25229781530356,739.5,364.554C752.417324266103,371.47612193126963,770.0835178567155,357.62981008638843,783,364.554C800.3606667732495,373.86060162971705,809.1393332267506,420.6933983702828,826.5,430C839.4164821432846,436.92418991361166,870,430,870,430L870,430C870,430,841,430,826.5,430C812,430,797.5,430,783,430C768.5,430,754,430,739.5,430C725,430,710.5,430,696,430C681.5,430,667,430,652.5,430C638,430,623.5,430,609,430C594.5,430,580,430,565.5,430C551,430,536.5,430,522,430C507.5000000000001,430.0000000000001,493,430.00000000000006,478.50000000000006,430C464.00000000000006,429.99999999999994,449.49999999999994,429.9999999999999,435,430C420.5,430.00000000000006,406,430,391.5,430C377,430,362.5,430,348,430C333.5,430,319,430,304.5,430C290,430,275.5,430,261,430C246.5,430,232,430,217.5,430C203,430,188.5,430,174,430C159.5,430,145,430,130.5,430C116,430,101.5,430,87,430C72.5,430,58,430,43.5,430C29,430,0,430,0,430Z">
+    </path>
+    <g transform="translate(0,430)" fill="none" font-size="10" font-family="sans-serif" text-anchor="middle">
+      <path class="domain" stroke="#000" d="M0.5,6V0.5H870.5V6">
+      </path>
+      <g class="tick" opacity="1" transform="translate(0.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">0</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(87.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">10</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(174.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">20</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(261.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">30</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(348.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">40</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(435.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">50</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(522.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">60</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(609.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">70</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(696.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">80</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(783.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">90</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(870.5,0)">
+        <line stroke="#000" y2="6">
+        </line>
+        <text fill="#000" y="9" dy="0.71em">100</text>
+      </g>
+    </g>
+    <text transform="translate(435 ,470)" style="text-anchor: middle;">Probability</text>
+    <g fill="none" font-size="10" font-family="sans-serif" text-anchor="end">
+      <path class="domain" stroke="#000" d="M-6,430.5H0.5V0.5H-6">
+      </path>
+      <g class="tick" opacity="1" transform="translate(0,430.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">0</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,387.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">10</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,344.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">20</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,301.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">30</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,258.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">40</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,215.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">50</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,172.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">60</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,129.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">70</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,86.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">80</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,43.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">90</text>
+      </g>
+      <g class="tick" opacity="1" transform="translate(0,0.5)">
+        <line stroke="#000" x2="-6">
+        </line>
+        <text fill="#000" x="-9" dy="0.32em">100</text>
+      </g>
+    </g>
+    <text transform="rotate(-90)" y="-70" x="-215" dy="1em" style="text-anchor: middle;">Perception</text>
+  </g>
+</svg>

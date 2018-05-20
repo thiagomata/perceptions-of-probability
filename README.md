@@ -16,20 +16,33 @@ Based on this values - and optionaly the error margin - we can calculate the saf
 ## Likely Perception List:
 
 ### Almost Certainly
+  ![Almost Certainly Chart](images/17-Almost-Certainly.png "Almost Certainly")
 ### Highly Likely	
+  ![Highly Likely Chart](images/16-Highly-Likely.png "Highly Likely")
 ### Very Good Chance	
+  ![Very Good Chance Chart](images/15-Very-Good-Chance.png "Very Good Chance")
 ### Likely	
+  ![Likely Chart](images/14-Likely.png "Likely")
 ### Probable	
+  ![Probable Chart](images/13-Probable.png "Probable")
 ### Probably	
+  ![Probably chart](images/12-Probably.png "Probably")
 ### We Believe	 
+  ![We Believe Chart](images/11-We-Believe.png "We Believe")
 ### Better Than Even	
+  ![Better Than Even Chart](images/10-Better-Than-Even.png "Better Than Even")
 ### About Even	
+  ![About Even Chart](images/9-About-Even.png "About Even")
 ### We Doubt	
+  ![We Doubt Chart](images/8-We-Doubt.png "We Doubt")
 ### Improbable	
+  ![Improbable Chart](images/7-Improbable.png "Improbable")
 ### Probably Not	
+  ![Probably Not Chart](images/6-Probably-Not.png "Probably Not")
 ### Unlikely	
+  ![Unlikely Chart](images/5-Unlikely.png "Unlikely")
 ### Little Chance	
-  ![Little Chance](images/4-Little-Chance.png "Little Chance")
+  ![Little Chance](images/4-Little-Change.png "Little Chance")
 ### Chances Are Slight
   ![Chances Are Slight Chart](images/3-Chances-Are-Slight.png "Chances Are Slight")
 ### Highly Unlikely

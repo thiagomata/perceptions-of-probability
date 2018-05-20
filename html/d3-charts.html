@@ -64,15 +64,20 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       // define the line
       var area = d3.area()
-          .curve(d3.curveCardinal)
-          .x(function(d) { debugger; return x(d.probability); })
-          .y1(function(d) { debugger; return y(d[dimension]); });
+          .curve(d3.curveCatmullRom)
+          .x(function(d) {
+            return x(d.probability);
+          })
+          .y1(
+            function(d) {
+            return y(d[dimension]);
+          });
 
       area.y0(y(0))
 
       // define the line
       var valueline = d3.line()
-          .curve(d3.curveCardinal)
+          .curve(d3.curveCatmullRom)
           .x(function(d) { return x(d.probability); })
           .y(function(d) { return y(d[dimension]); });
 

@@ -18,7 +18,7 @@ Based on this values - and optionaly the error margin - we can calculate the saf
 ### Almost Certainly
   ![Almost Certainly Chart](images/17-Almost-Certainly.svg "Almost Certainly")
 ### Highly Likely
-  ![Highly Likely Chart](images/16-Highly Likely.svg "Highly Likely")
+  ![Highly Likely Chart](images/16-Highly-Likely.svg "Highly Likely")
 ### Very Good Chance
   ![Very Good Chance Chart](images/15-Very-Good-Chance.svg "Very Good Chance")
 ### Likely

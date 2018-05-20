@@ -44,7 +44,7 @@ var y = d3.scaleLinear().range([height, 0]);
 var divCharts = d3.select("body").append("div").attr("class","charts");
 
 // Get the data
-d3.csv("data.csv", function(error, data) {
+d3.csv("./data.csv", function(error, data) {
   if (error) throw error;
   window.data = data;
 

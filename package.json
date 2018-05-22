@@ -1,0 +1,33 @@
+{
+  "name": "perceptions-of-probability",
+  "version": "0.1.0",
+  "description": "This project defines an extra dimension to task estimation based on this study https://github.com/zonination/perceptions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thiagomata/perceptions-of-probability.git"
+  },
+  "keywords": [
+    "scrum",
+    "risk",
+    "probability",
+    "estimation",
+    "poker",
+    "agile"
+  ],
+  "author": "Thiago Mata <thiago.henrique.mata@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thiagomata/perceptions-of-probability/issues"
+  },
+  "homepage": "https://github.com/thiagomata/perceptions-of-probability#readme",
+  "dependencies": {
+    "a": "^2.1.2",
+    "arraymore.js": "^4.0.1",
+    "csv-array": "0.0.22",
+    "d3": "^5.4.0"
+  }
+}

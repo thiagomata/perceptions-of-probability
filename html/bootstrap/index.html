@@ -212,7 +212,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
         d => {
           return {
             probability: 1 - ( 1 / 100 ) * d.probability,
-            chance: ( 1 / 100 ) * d["Almost Certainly"]
+            chance: ( 1 / 100 ) * d[dimension]
           }
         }
       );
@@ -303,7 +303,6 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
                 scrumTableCell.setAttribute("class","emptyvalue");
               } else {
                 scrumTableCell.innerHTML = scrumValue[0].value;
-                // scrumTableCell.innerHTML = v1 + " x " + v2 + " = " + scrumValue[0].value;
               }
               scrumTableRow.appendChild( scrumTableCell );
             }
@@ -317,25 +316,6 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       window.divTable = divTable;
       divTable.node().appendChild(scrumTable);
 
-
-      // var groupedScrumValues = [];
-      // crossScrumValues.forEach(
-      //   (d) => {
-      //     if( groupedScrumValues[ d.from ] === undefined ) {
-      //       groupedScrumValues[ d.from ] = [];
-      //     }
-      //     groupedScrumValues[ d.from ].push( {
-      //       to: d.to,
-      //       value: d.value
-      //     } );
-      //   }
-      // );
-    	// // render the table(s)
-      // groupedScrumValues.forEach(
-      //   (groupedValue, key) => {
-      //     tabulate(groupedValue, ['to', 'value'], [ key , '']); // 2 column table
-      //   }
-      // )
     }
   );
 });

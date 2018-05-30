@@ -2,15 +2,6 @@
 <meta charset="utf-8">
 <style> /* set the CSS */
 
-table {
-  display: inline-block;
-  float: inline-block;
-}
-.tableblock {
-  display: block;
-  width: 99%;
-  float: left;
-}
 .line {
   fill: none;
   stroke: rgb(100,100,100);
@@ -32,8 +23,49 @@ h2 {
   font-weight: lighter;
   color: rgb(100,100,100);
 }
+.label {
+  width: 200px;
+  display: inline-block;
+}
 </style>
 <body>
+<form>
+  <span class="label">
+  Optimist:
+  </span>
+  <select id="optimist">
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>5</option>
+    <option>8</option>
+    <option>13</option>
+    <option>21</option>
+    <option>30</option>
+    <option>100</option>
+  </select>
+  <br/>
+  <span class="label">
+    Pessimist:
+  </span>
+  <select id="pessimist">
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>5</option>
+    <option>8</option>
+    <option>13</option>
+    <option>21</option>
+    <option>30</option>
+    <option>100</option>
+  </select>
+  <br/>
+  <span class="label">
+    Probability of the Optimist:
+  </span>
+  <select id="probability">
+  </select>
+</form>
 <!-- load the d3.js library -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
@@ -59,15 +91,15 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
   var dimensions = data.columns.filter( c => c != "probability");
 
-  // dimensionColor = d3. line().curve(d3.curveCardinal)
-  //   .domain([1,dimensions.length/2,dimensions.length])
-  //   .interpolate(d3.interpolateLab)
-  //   .range([d3.rgb("#772200"), d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+  d3.select("#probability").selectAll("option").data(dimensions).enter().append("option").text( x => x )
 
   var dimensionColor =  d3.scaleSequential(d3.interpolateInferno)
       .domain([dimensions.length,0]);
 
   window.dimensionColor = dimensionColor;
+
+
+
   dimensions.forEach(
     ( dimension, key ) => {
 
@@ -173,102 +205,6 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .attr("dy", "1em")
           .style("text-anchor", "middle")
           .text("Perception");
-
-      var prob = data.map(
-        d => {
-          return {
-            probability: 1 - ( 1 / 100 ) * d.probability,
-            chance: ( 1 / 100 ) * d["Almost Certainly"]
-          }
-        }
-      );
-
-      var scrumValues = [1,2,3,5,8,13,20,30,50,100];
-      var crossScrumRanges = [];
-      scrumValues.forEach(
-        (v1) => {
-          scrumValues.forEach(
-            (v2) => {
-              if( v1 < v2 ) {
-                crossScrumRanges.push({from:v1,to:v2});
-              }
-            }
-          )
-        }
-      );
-
-      var crossScrumValues = crossScrumRanges.map(
-        (scrumRange) => {
-          var valueRange = prob.map(
-            p => {
-              return {
-                probability: scrumRange.from +
-                  p.probability * ( scrumRange.to - scrumRange.from),
-                chance: p.chance
-              }
-            }
-          );
-          var expectedValue = valueRange.map(
-            n => n.probability * n.chance
-          ).reduce( (a,b) => a + b );
-
-          return {
-            from: scrumRange.from,
-            to: scrumRange.to,
-            value: Math.round( expectedValue )
-          }
-        }
-      );
-
-      function tabulate(data, columns) {
-        var tableBlock = divChart.append('div')
-        tableBlock.attr("class","tableblock");
-    		var table = tableBlock.append('table')
-    		var thead = table.append('thead')
-    		var	tbody = table.append('tbody');
-
-    		// append the header row
-    		thead.append('tr')
-    		  .selectAll('th')
-    		  .data(columns).enter()
-    		  .append('th')
-    		    .text(function (column) { return column; });
-
-    		// create a row for each object in the data
-    		var rows = tbody.selectAll('tr')
-    		  .data(data)
-    		  .enter()
-    		  .append('tr');
-
-    		// create a cell in each row for each column
-    		var cells = rows.selectAll('td')
-    		  .data(function (row) {
-    		    return columns.map(function (column) {
-    		      return {column: column, value: row[column]};
-    		    });
-    		  })
-    		  .enter()
-    		  .append('td')
-    		    .text(function (d) { return d.value; });
-
-    	  return table;
-    	}
-
-      var groupedScrumValues = [];
-      crossScrumValues.forEach(
-        (d) => {
-          if( groupedScrumValues[ d.from ] === undefined ) {
-            groupedScrumValues[ d.from ] = [];
-          }
-          groupedScrumValues[ d.from ].push( d );
-        }
-      );
-    	// render the table(s)
-      groupedScrumValues.forEach(
-        groupedValue => {
-          tabulate(groupedValue, ['from', 'to', 'value']); // 2 column table
-        }
-      )
     }
   );
 });

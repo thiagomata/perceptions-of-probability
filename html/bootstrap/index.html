@@ -10,9 +10,12 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <style>
+    table.scrum-table-values {
+      border-collapse: inherit;
+    }
     .scrum-table-values td {
-      width: 50px;
-      height: 50px;
+      width: 30px;
+      height: 30px;
       border-color: rgb(200,200,200);
       border-style: solid;
       border-width: 1px;
@@ -22,10 +25,10 @@
     .center-block {
         float: none !important
     }
-    .scrum-table-values .header{
-      background-color: blue;
+    .scrum-table-values td.td-header{
+      background-color: rgb(100,100,200);
       color: white;
-      border-color: blue;
+      border-color: rgb(120,120,230);
     }
     .scrum-table-values {
       margin: 0 auto;
@@ -33,7 +36,22 @@
        margin: 0px auto;
        float: none;
      }
-     .pessimist-label {
+     td.pessimist-label-td,
+     td.table-title-label-td,
+     td.optimist-label-td,
+     td.label-empty-td
+     {
+       border-style: none;
+     }
+     td.empty-cross-td  {
+       border-width:0px;
+       background-color: rgb(100,100,200);
+     }
+     td.emptyvalue{
+       background-color: rgb(255,255,255);
+       border-color: rgb(255,255,255);
+     }
+     td.pessimist-label-td {
        /* Safari */
        -webkit-transform: rotate(-90deg);
 
@@ -256,22 +274,37 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       var scrumTable = document.createElement("table");
       scrumTable.setAttribute("class","scrum-table-values center-block");
+
+      var scrumTableTitle =  document.createElement("tr");
+      scrumTableTitle.setAttribute("class","table-title-tr");
+      var scrumTableTitleLabel =  document.createElement("td");
+      scrumTableTitleLabel.setAttribute("class","table-title-label-td");
+      scrumTableTitleLabel.innerHTML = "<span>Probable Score considering the Optimist and Pessimist values <br/> where the Optimist is " + dimension + "</span>";
+      scrumTableTitleLabel.setAttribute("colspan",scrumValues.length+2);
+      scrumTableTitle.appendChild(scrumTableTitleLabel);
+      scrumTable.appendChild(scrumTableTitle);
+
       var scrumTableLabel =  document.createElement("tr");
+      scrumTableLabel.setAttribute("class","optimist-label-tr");
+
       var scrumHeaderLabelEmpty =  document.createElement("td");
+      scrumHeaderLabelEmpty.setAttribute("class","label-empty-td");
       scrumHeaderLabelEmpty.setAttribute("colspan",1);
       scrumTableLabel.appendChild( scrumHeaderLabelEmpty );
       var scrumHeaderLabel =  document.createElement("td");
       scrumHeaderLabel.setAttribute("colspan",scrumValues.length+1);
-      scrumHeaderLabel.setAttribute("class","optimist-label");
+      scrumHeaderLabel.setAttribute("class","optimist-label-td");
       scrumHeaderLabel.innerHTML = "Optimist";
       scrumTableLabel.appendChild( scrumHeaderLabel );
+
       var scrumTableHeader =  document.createElement("tr");
       var scrumHeaderEmpty =  document.createElement("td");
+      scrumHeaderEmpty.setAttribute("class","empty-cross-td");
       scrumTableHeader.appendChild( scrumHeaderEmpty );
       scrumValues.forEach(
         (v2) => {
           var scrumHeaderV2 =  document.createElement("td");
-          scrumHeaderV2.setAttribute("class","header");
+          scrumHeaderV2.setAttribute("class","td-header");
           scrumHeaderV2.innerHTML = v2;
           scrumTableHeader.appendChild(scrumHeaderV2);
         }
@@ -283,13 +316,13 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           if( key == 0 ) {
             var scrumHeaderV1  =  document.createElement("td");
             scrumHeaderV1.innerHTML = "Pessimist";
-            scrumHeaderV1.setAttribute("class","pessimist-label");
+            scrumHeaderV1.setAttribute("class","pessimist-label-td");
             scrumHeaderV1.setAttribute("rowspan", scrumValues.length + 1);
             scrumTableRow.appendChild( scrumHeaderV1 );
           }
           var scrumHeaderV1 =  document.createElement("td");
           scrumHeaderV1.innerHTML = v1;
-          scrumHeaderV1.setAttribute("class","header");
+          scrumHeaderV1.setAttribute("class","td-header");
           scrumTableRow.appendChild( scrumHeaderV1 );
           // add values
           scrumValues.forEach(

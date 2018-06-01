@@ -4,6 +4,9 @@ This project defines an extra dimension to task estimation based on this study h
 ## Draft on Google Docs
 A draft of the project is running on https://docs.google.com/spreadsheets/d/1DDj2PIKxt8Pk0GD5m7FDDEv93QS1qBK82moUxwcK7mA/edit?usp=sharing
 
+A draft of the Scrum Cards is available here
+http://htmlpreview.github.io/?https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/node-experiment/html/bootstrap/index.html
+
 ## The Process
 
 The estimation process, is similar to the Agile Cards, but instead of just givin one value, each developer gives 3 answers:

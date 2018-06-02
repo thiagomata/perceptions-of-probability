@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Task Estimative Calculator</title>
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <style>
+  .line {
+    fill: none;
+    stroke: rgb(100,100,100);
+    stroke-width: 4px;
+  }
+
+  .area {
+    stroke: rgb(100,100,100);
+    stroke-width: 4px;
+    fill: lightsteelblue;
+  }
+
+  .grid line {
+    stroke: rgba(150,150,240,0.1);
+    stroke-width: 5px;
+  }
+</style>
+</head>
+<body>
+  <!-- Special version of Bootstrap that only affects content wrapped in .bootstrap-iso -->
+  <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
+
+  <!-- Inline CSS based on choices in "Settings" tab -->
+  <style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}</style>
+
+  <!-- HTML Form (wrapped in a .bootstrap-iso div) -->
+  <div class="bootstrap-iso">
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-6 col-sm-6 col-xs-12">
+      <form method="post">
+       <div class="form-group ">
+        <label class="control-label requiredField" for="optimist-value">
+         Optimist Value
+         <span class="asteriskField">
+          *
+         </span>
+        </label>
+        <select class="form-control" id="optimist-value" name="optimist-value" onchange="drawChart()">
+          <option value="1" selected>
+            1
+          </option>
+        </select>
+       </div>
+       <div class="form-group ">
+        <label class="control-label requiredField" for="pessimist-value">
+         Pessimist Value
+         <span class="asteriskField">
+          *
+         </span>
+        </label>
+        <select class="form-control" id="pessimist-value" name="pessimist-value" onchange="drawChart()">
+          <option value="100" selected>
+            100
+          </option>
+        </select>
+       </div>
+       <div class="form-group ">
+        <label class="control-label requiredField" for="probability">
+         Probability of the Optimist Scenario
+         <span class="asteriskField">
+          *
+         </span>
+        </label>
+        <select class="form-control" id="probability" name="probability" onchange="drawChart()">
+          <option value="About Even" selected>
+            About Even
+          </option>
+        </select>
+       </div>
+       <div class="form-group ">
+        <label class="control-label requiredField" for="confidence-values">
+         With 95% of confidence the value should be inside of the interval
+         <span id="confidence-min-value">
+           0
+         </span>
+         and
+         <span id="confidence-max-value">
+           100
+         </span>
+        </label>
+       </div>
+       <div class="form-group ">
+        <label class="control-label requiredField" for="expected-value">
+         Expected value is
+         <span id="expected-value">
+           50
+         </span>
+        </label>
+       </div>
+      </form>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+  const scrumValues = [1,2,3,5,8,13,20,30,50,100];
+
+  function setValuesOnSelect( $select, values ) {
+    values.forEach(
+      (scrumValue) => {
+        const optionList = $select.children("option[value=\""+scrumValue+"\"]");
+        if( optionList.length == 0 ) {
+          $select.append(
+            $("<option>", { value: scrumValue, html: scrumValue })
+          );
+        }
+      }
+    )
+  }
+  setValuesOnSelect( $("#optimist-value"), scrumValues );
+  setValuesOnSelect( $("#pessimist-value"), scrumValues );
+
+  var csvData = null;
+  var dimensions = null;
+  const divCharts = d3.select("body").append("div").attr("class","charts container");
+
+  function loadCsv( error, csvReceivedData ) {
+    if (error) throw error;
+    csvData = csvReceivedData;
+    dimensions = csvData.columns.filter( column => column != "probability");
+    setValuesOnSelect( $("#probability"), dimensions );
+    drawChart();
+  }
+
+  function drawChart() {
+    const optimistValue  = 1 * $("#optimist-value").val();
+    const pessimistValue = 1 * $("#pessimist-value").val();
+    const selectedProbability = $("#probability").val();
+    const probabilityPosition = dimensions.indexOf( selectedProbability );
+
+    const dimensionColor =  d3.scaleSequential(d3.interpolateInferno)
+        .domain([dimensions.length,0]);
+
+    const probColor =  d3.scaleSequential(d3.interpolateInferno)
+        .domain([0,3]);
+
+    const dimensionProb = csvData.map(
+      row => {
+        return {
+          probability: 1 - ( 1 / 100 ) * row.probability,
+          chance: ( 1 / 100 ) * row[selectedProbability]
+        }
+      }
+    );
+
+    var accPositive = 0;
+    var accNegative = 1;
+    const confidenceInterval = 0.95;
+
+    const valueRange = dimensionProb.map(
+      p => {
+        accNegative -= p.chance;
+        accPositive += p.chance;
+        return {
+          accNegative: accNegative,
+          accPositive: accPositive,
+          probability: p.probability,
+          chance: p.chance,
+          value: optimistValue +
+            p.probability * ( pessimistValue - optimistValue)
+        }
+      }
+    );
+    const expectedValue = valueRange.map(
+      n => n.value * n.chance
+    ).reduce( (a,b) => a + b );
+
+    $("#expected-value").html( expectedValue );
+
+    console.log("expected value = ",expectedValue );
+    var margin = {top: 20, right: 20, bottom: 50, left: 70},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scaleLinear().range([0, width]);
+    var y = d3.scaleLinear().range([height, 0]);
+
+    // define the line
+    var area = d3.area()
+        //.curve(d3.curveCatmullRom)
+        .x(function(d) {
+          return x(d.value);
+        })
+        .y1(
+          function(d) {
+          return y(d.chance);
+        });
+
+    area.y0(y(0))
+
+    // define the line
+    var valueline = d3.line()
+        .curve(d3.curveCatmullRom)
+        .x(function(d) { return x(d.value); })
+        .y(function(d) { return y(d.chance); });
+
+    window.valueline = valueline;
+
+    $(".charts").html("");
+    var divChart = divCharts.append("div").attr("class","chart row card card-front");
+    divChart.append("h2").text(selectedProbability);
+
+    var svg = divChart.append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+
+    // Scale the range of the data
+    x.domain([0, 100]);
+    y.domain([0, 1]);
+
+    // gridlines in x axis function
+    function make_x_gridlines() {
+        return d3.axisBottom(x)
+            .ticks(5)
+    }
+
+    // gridlines in y axis function
+    function make_y_gridlines() {
+        return d3.axisLeft(y)
+            .ticks(5)
+    }
+
+    // add the X gridlines
+    svg.append("g")
+      .attr("class", "grid")
+      .attr("transform", "translate(0," + height + ")")
+      .call(make_x_gridlines()
+          .tickSize(-height)
+          .tickFormat("")
+      )
+
+    // add the Y gridlines
+    svg.append("g")
+      .attr("class", "grid")
+      .call(make_y_gridlines()
+          .tickSize(-width)
+          .tickFormat("")
+      )
+
+    // Add the valueline path.
+    // svg.append("path")
+    //     .data([data])
+    //     .attr("class", "line")
+    //     .attr("d", valueline);
+
+    const outsideLeft = valueRange.filter(
+      d => d.accNegative >= confidenceInterval
+    );
+
+    const outsideRight = valueRange.filter(
+      d => d.accPositive >= confidenceInterval
+    );
+
+    const lastLeft = outsideLeft.length - 1;
+    const firstRight = valueRange.length - outsideRight.length;
+    const insideConfidence = valueRange.filter(
+      (d,k) => {
+        return ( k >= ( lastLeft ) &&
+             k <= ( firstRight  ) );
+      }
+    )
+
+    svg.append("path")
+        .data([insideConfidence])
+        .attr("class", "area")
+        .attr("style", "fill:green")
+        .attr("d", area);
+
+    svg.append("path")
+        .data([outsideLeft])
+        .attr("class", "area")
+        .attr("style", "fill:red")
+        .attr("d", area);
+
+    svg.append("path")
+        .data([outsideRight])
+        .attr("class", "area")
+        .attr("style", "fill:red")
+        .attr("d", area);
+
+    // Add the x Axis
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    // text label for the x axis
+    svg.append("text")
+        .attr("transform",
+              "translate(" + (width/2) + " ," +
+                             (height + margin.top + 20) + ")")
+        .style("text-anchor", "middle")
+        .text("Score");
+
+    // Add the y Axis
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    // text label for the y axis
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Probability");
+
+    debugger;
+    $("#confidence-min-value").html(
+      insideConfidence.map(n=>n.value).reduce(
+        (a,b) => {
+          return Math.min(a,b);
+        }
+      )
+    );
+    $("#confidence-max-value").html(
+      insideConfidence.map(n=>n.value).reduce(
+        (a,b) => {
+          return Math.max(a,b);
+        }
+      )
+    )
+
+  }
+
+  d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/html/data.csv", loadCsv )
+  </script>
+</body>
+</html>

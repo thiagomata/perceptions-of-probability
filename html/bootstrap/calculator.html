@@ -9,6 +9,24 @@
   <script src="js/bootstrap.min.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
   <style>
+  .too-low-values-end {
+    stop-color: white;
+  }
+  .too-low-values-begin {
+    stop-color: green;
+  }
+  .too-high-values-begin {
+    stop-color: green;
+  }
+  .too-high-values-end {
+    stop-color: white;
+  }
+  .good-values-begin {
+    stop-color: green;
+  }
+  .good-values-end {
+    stop-color: green;
+  }
   .line {
     fill: none;
     stroke: rgb(100,100,100);
@@ -155,6 +173,7 @@
       }
     );
 
+
     var accPositive = 0;
     var accNegative = 1;
     const confidenceInterval = 0.95;
@@ -177,21 +196,55 @@
       n => n.value * n.chance
     ).reduce( (a,b) => a + b );
 
-    $("#expected-value").html( expectedValue );
+    const outsideLeft = valueRange.filter(
+      d => d.accNegative >= confidenceInterval
+    );
+    const outsideRight = valueRange.filter(
+      d => d.accPositive >= confidenceInterval
+    );
+    const lastLeft = outsideLeft.length;
+    const firstRight = valueRange.length - outsideRight.length - 1;
+    const insideConfidence = valueRange.filter(
+       (d,k) => {
+         return ( k >= ( lastLeft ) &&
+           k <= ( firstRight  ) );
+       }
+    );
 
-    console.log("expected value = ",expectedValue );
-    var margin = {top: 20, right: 20, bottom: 50, left: 70},
+    debugger;
+
+    $("#expected-value").html( Math.round( expectedValue ) );
+    $("#confidence-min-value").html(
+      Math.round(
+         insideConfidence.map(n=>n.value).reduce(
+           (a,b) => {
+             return Math.min(a,b);
+           }
+         )
+       )
+     );
+     $("#confidence-max-value").html(
+       Math.round(
+         insideConfidence.map(n=>n.value).reduce(
+           (a,b) => {
+             return Math.max(a,b);
+           }
+         )
+       )
+     );
+
+    const margin = {top: 20, right: 20, bottom: 50, left: 70},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
-    var x = d3.scaleLinear().range([0, width]);
-    var y = d3.scaleLinear().range([height, 0]);
+    const x = d3.scaleLinear().range([0, width]);
+    const y = d3.scaleLinear().range([height, 0]);
 
     // define the line
-    var area = d3.area()
-        //.curve(d3.curveCatmullRom)
+    const area = d3.area()
+        .curve(d3.curveCatmullRom)
         .x(function(d) {
-          return x(d.value);
+          return x(d.value) ;
         })
         .y1(
           function(d) {
@@ -203,7 +256,7 @@
     // define the line
     var valueline = d3.line()
         .curve(d3.curveCatmullRom)
-        .x(function(d) { return x(d.value); })
+        .x(function(d) { return x(d.value )  ; })
         .y(function(d) { return y(d.chance); });
 
     window.valueline = valueline;
@@ -245,53 +298,109 @@
           .tickFormat("")
       )
 
+    var accGradientPositive;
+    var accGradientNegative;
+    const step = 100/( valueRange.length - 1 );
+    const gluglu = (1 - confidenceInterval ) / 2;
+
+  window.valueRange = valueRange;
+  var accPositive = 0;
+  var accPositiveValue = 0;
+    for( let i = 0; i < valueRange.length; i++ ) {
+      var currentValue = valueRange[ i ];
+      if ( ( accPositive + currentValue.chance ) < gluglu ) {
+        accPositive += currentValue.chance;
+        accPositiveValue += currentValue.value * currentValue.chance;
+        console.log("accPositive=",accPositive);
+        continue;
+      }
+      // accGradientPositive = ( i - 0.5 ) * step;
+      const missingDiff = gluglu - accPositive;
+
+      const currentDiff =
+        ( missingDiff ) /
+        ( currentValue.chance );
+      accGradientPositive += missingDiff * currentValue.value;
+      accGradientPositive = ( i  + currentDiff ) * step ;
+      break;
+    }
+
+    var accNegative = 0;
+    var accNegativeValue = 0;
+    for( let i = valueRange.length - 1; i > 0; i-- ) {
+      var currentValue = valueRange[ i ];
+      if ( ( accNegative + currentValue.chance ) < gluglu ) {
+        accNegative += currentValue.chance;
+        accNegativeValue += currentValue.chance * currentValue.value;
+        console.log("accNegative=",accNegative);
+        continue;
+      }
+      const missingDiff = gluglu - accNegative;
+      // accGradientNegative = step * ( i + 0.5 );
+      const currentDiff =
+        ( missingDiff ) /
+        ( currentValue.chance );
+        console.log("currdiff=",currentDiff);
+        console.log("i=",i);
+
+      accNegativeValue += missingDiff * currentValue.value;
+      accGradientNegative = step * ( i - currentDiff );
+      break;
+    }
+    console.log("accPositiveValue = ",accPositiveValue);
+    console.log("accNegativeValue = ",accNegativeValue);
+
+    var svgDefs = svg.append("defs");
+    var mainGradient = svgDefs.append("linearGradient")
+      .attr('id','mainGradient')
+      .attr('x1',"100%")
+      .attr('x2',"0%")
+      .attr('y1',"100%")
+      .attr('y2',"100%")
+      ;
+
+    var startGradient = Math.min( accGradientNegative, accGradientPositive );
+    var endGradient = Math.max( accGradientNegative, accGradientPositive );
+
+    mainGradient.append('stop')
+                    .attr('class', 'too-low-values-end')
+                    .attr('offset', '0');
+    mainGradient.append('stop')
+                    .attr('class', 'too-low-values-begin')
+                    .attr('offset', Math.round(startGradient) + "%");
+    mainGradient.append('stop')
+                    .attr('class', 'good-values-begin')
+                    .attr('offset', Math.round(startGradient) + "%");
+    mainGradient.append('stop')
+                    .attr('class', 'good-values-end')
+                    .attr('offset', Math.round(endGradient) + "%");
+    mainGradient.append('stop')
+                    .attr('class', 'too-high-values-begin')
+                    .attr('offset', Math.round(endGradient) + "%");
+    mainGradient.append('stop')
+                    .attr('class', 'too-high-values-end')
+                    .attr('offset', '100%');
+    debugger;
+
     // add the Y gridlines
     svg.append("g")
       .attr("class", "grid")
+      // .attr("style","fill:url(#mainGradient)")
       .call(make_y_gridlines()
           .tickSize(-width)
           .tickFormat("")
       )
 
     // Add the valueline path.
-    // svg.append("path")
-    //     .data([data])
-    //     .attr("class", "line")
-    //     .attr("d", valueline);
-
-    const outsideLeft = valueRange.filter(
-      d => d.accNegative >= confidenceInterval
-    );
-
-    const outsideRight = valueRange.filter(
-      d => d.accPositive >= confidenceInterval
-    );
-
-    const lastLeft = outsideLeft.length - 1;
-    const firstRight = valueRange.length - outsideRight.length;
-    const insideConfidence = valueRange.filter(
-      (d,k) => {
-        return ( k >= ( lastLeft ) &&
-             k <= ( firstRight  ) );
-      }
-    )
+    svg.append("path")
+        .data([valueRange])
+        .attr("class", "line")
+        .attr("d", valueline);
 
     svg.append("path")
-        .data([insideConfidence])
+        .data([valueRange])
         .attr("class", "area")
-        .attr("style", "fill:green")
-        .attr("d", area);
-
-    svg.append("path")
-        .data([outsideLeft])
-        .attr("class", "area")
-        .attr("style", "fill:red")
-        .attr("d", area);
-
-    svg.append("path")
-        .data([outsideRight])
-        .attr("class", "area")
-        .attr("style", "fill:red")
+        .attr("style","fill:url(#mainGradient)")
         .attr("d", area);
 
     // Add the x Axis
@@ -321,24 +430,10 @@
         .text("Probability");
 
     debugger;
-    $("#confidence-min-value").html(
-      insideConfidence.map(n=>n.value).reduce(
-        (a,b) => {
-          return Math.min(a,b);
-        }
-      )
-    );
-    $("#confidence-max-value").html(
-      insideConfidence.map(n=>n.value).reduce(
-        (a,b) => {
-          return Math.max(a,b);
-        }
-      )
-    )
-
   }
 
-  d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/html/data.csv", loadCsv )
+  d3.csv("../../data/data.csv", loadCsv);
+  // d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/html/data.csv", loadCsv )
   </script>
 </body>
 </html>

@@ -23,9 +23,15 @@ h2 {
   font-weight: lighter;
   color: rgb(100,100,100);
 }
+select {
+  width: 300px;
+  font-size: 18px;
+}
 .label {
-  width: 200px;
+  width: 300px;
   display: inline-block;
+  font-size: 20px;
+  font-weight: strong;
 }
 </style>
 <title>Perception of Probability - Calculator</title>
@@ -124,11 +130,11 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       // define the line
       var area = d3.area()
-          .curve(d3.curveCatmullRom)
+          .curve(d3.curveMonotoneX)
           .x(function(d) {
           console.log(d);
           debugger;
-            v = Math.floor(d.probability * (xMax - xMin) / 100 + xMin);
+            v = 1 * (d.probability * (xMax - xMin) / 100 + xMin);
             console.log(v);
             return x(v);
           })
@@ -141,7 +147,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       // define the line
       var valueline = d3.line()
-          .curve(d3.curveCatmullRom)
+          //.curve(d3.curveMonotoneX)
           .x(function(d) { return x(Math.floor(d.probability * (xMax - xMin) / 100 + xMin)); })
           .y(function(d) { return y(d[dimension]); });
 

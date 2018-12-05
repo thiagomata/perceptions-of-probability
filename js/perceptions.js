@@ -1,43 +1,3 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style> /* set the CSS */
-
-table {
-  display: inline-block;
-  float: inline-block;
-}
-.tableblock {
-  display: block;
-  width: 99%;
-  float: left;
-}
-.line {
-  fill: none;
-  stroke: rgb(100,100,100);
-  stroke-width: 4px;
-}
-
-.area {
-  stroke: rgb(100,100,100);
-  stroke-width: 4px;
-  fill: lightsteelblue;
-}
-
-.grid line {
-  stroke: rgba(150,150,240,0.1);
-  stroke-width: 5px;
-}
-
-h2 {
-  font-weight: lighter;
-  color: rgb(100,100,100);
-}
-</style>
-<body>
-<!-- load the d3.js library -->
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
-
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 20, bottom: 50, left: 70},
     width = 960 - margin.left - margin.right,
@@ -50,7 +10,7 @@ var parseTime = d3.timeParse("%d-%b-%y");
 var x = d3.scaleLinear().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
-var divCharts = d3.select("body").append("div").attr("class","charts");
+var divCharts = d3.select("body").append("div").attr("class","charts container");
 
 // Get the data
 d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/html/data.csv", function(error, data) {
@@ -92,9 +52,11 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       window.valueline = valueline;
 
-      var divChart = divCharts.append("div").attr("class","chart");
-
+      var divDimension = divCharts.append("div").attr("class","dimension");
+      var divChart = divDimension.append("div").attr("class","chart row card card-front");
       divChart.append("h2").text(dimension);
+      var divTable = divDimension.append("div").attr("class","row-fluid card card-back");
+      divTable.append("h2").text(dimension);
 
       var svg = divChart.append("svg")
           .attr("width", width + margin.left + margin.right)
@@ -178,7 +140,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
         d => {
           return {
             probability: 1 - ( 1 / 100 ) * d.probability,
-            chance: ( 1 / 100 ) * d["Almost Certainly"]
+            chance: ( 1 / 100 ) * d[dimension]
           }
         }
       );
@@ -220,58 +182,83 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
         }
       );
 
-      function tabulate(data, columns) {
-        var tableBlock = divChart.append('div')
-        tableBlock.attr("class","tableblock");
-    		var table = tableBlock.append('table')
-    		var thead = table.append('thead')
-    		var	tbody = table.append('tbody');
+      var scrumTable = document.createElement("table");
+      scrumTable.setAttribute("class","scrum-table-values center-block");
 
-    		// append the header row
-    		thead.append('tr')
-    		  .selectAll('th')
-    		  .data(columns).enter()
-    		  .append('th')
-    		    .text(function (column) { return column; });
+      var scrumTableTitle =  document.createElement("tr");
+      scrumTableTitle.setAttribute("class","table-title-tr");
+      var scrumTableTitleLabel =  document.createElement("td");
+      scrumTableTitleLabel.setAttribute("class","table-title-label-td");
+      scrumTableTitleLabel.innerHTML = "<span>Probable Score considering the Optimist and Pessimist values <br/> where the Optimist is " + dimension + "</span>";
+      scrumTableTitleLabel.setAttribute("colspan",scrumValues.length+2);
+      scrumTableTitle.appendChild(scrumTableTitleLabel);
+      scrumTable.appendChild(scrumTableTitle);
 
-    		// create a row for each object in the data
-    		var rows = tbody.selectAll('tr')
-    		  .data(data)
-    		  .enter()
-    		  .append('tr');
+      var scrumTableLabel =  document.createElement("tr");
+      scrumTableLabel.setAttribute("class","optimist-label-tr");
 
-    		// create a cell in each row for each column
-    		var cells = rows.selectAll('td')
-    		  .data(function (row) {
-    		    return columns.map(function (column) {
-    		      return {column: column, value: row[column]};
-    		    });
-    		  })
-    		  .enter()
-    		  .append('td')
-    		    .text(function (d) { return d.value; });
+      var scrumHeaderLabelEmpty =  document.createElement("td");
+      scrumHeaderLabelEmpty.setAttribute("class","label-empty-td");
+      scrumHeaderLabelEmpty.setAttribute("colspan",1);
+      scrumTableLabel.appendChild( scrumHeaderLabelEmpty );
+      var scrumHeaderLabel =  document.createElement("td");
+      scrumHeaderLabel.setAttribute("colspan",scrumValues.length+1);
+      scrumHeaderLabel.setAttribute("class","optimist-label-td");
+      scrumHeaderLabel.innerHTML = "Optimist";
+      scrumTableLabel.appendChild( scrumHeaderLabel );
 
-    	  return table;
-    	}
-
-      var groupedScrumValues = [];
-      crossScrumValues.forEach(
-        (d) => {
-          if( groupedScrumValues[ d.from ] === undefined ) {
-            groupedScrumValues[ d.from ] = [];
-          }
-          groupedScrumValues[ d.from ].push( d );
+      var scrumTableHeader =  document.createElement("tr");
+      var scrumHeaderEmpty =  document.createElement("td");
+      scrumHeaderEmpty.setAttribute("class","empty-cross-td");
+      scrumTableHeader.appendChild( scrumHeaderEmpty );
+      scrumValues.forEach(
+        (v2) => {
+          var scrumHeaderV2 =  document.createElement("td");
+          scrumHeaderV2.setAttribute("class","td-header");
+          scrumHeaderV2.innerHTML = v2;
+          scrumTableHeader.appendChild(scrumHeaderV2);
         }
       );
-    	// render the table(s)
-      groupedScrumValues.forEach(
-        groupedValue => {
-          tabulate(groupedValue, ['from', 'to', 'value']); // 2 column table
+
+      scrumValues.forEach(
+        (v1,key) => {
+          var scrumTableRow =  document.createElement("tr");
+          if( key == 0 ) {
+            var scrumHeaderV1  =  document.createElement("td");
+            scrumHeaderV1.innerHTML = "Pessimist";
+            scrumHeaderV1.setAttribute("class","pessimist-label-td");
+            scrumHeaderV1.setAttribute("rowspan", scrumValues.length + 1);
+            scrumTableRow.appendChild( scrumHeaderV1 );
+          }
+          var scrumHeaderV1 =  document.createElement("td");
+          scrumHeaderV1.innerHTML = v1;
+          scrumHeaderV1.setAttribute("class","td-header");
+          scrumTableRow.appendChild( scrumHeaderV1 );
+          // add values
+          scrumValues.forEach(
+            (v2) => {
+              var scrumTableCell =  document.createElement("td");
+              var scrumValue = crossScrumValues.filter(
+                n => n.to == v1 && n.from == v2
+              );
+              if( scrumValue.length == 0 ) {
+                scrumTableCell.innerHTML = "";
+                scrumTableCell.setAttribute("class","emptyvalue");
+              } else {
+                scrumTableCell.innerHTML = scrumValue[0].value;
+              }
+              scrumTableRow.appendChild( scrumTableCell );
+            }
+          );
+          scrumTable.appendChild( scrumTableRow );
         }
-      )
+      );
+      scrumTable.appendChild(scrumTableHeader);
+      scrumTable.appendChild(scrumTableLabel);
+
+      window.divTable = divTable;
+      divTable.node().appendChild(scrumTable);
+
     }
   );
 });
-</script>
-</body>
-</html>

@@ -10,6 +10,39 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <style>
+    @media print {
+      div.card-back{
+        transform: rotate(180deg);
+        -webkit-transform: rotate(180deg);
+      }
+      div.dimension{
+        page-break-after: always;
+      }
+    }
+
+    div.card {
+      padding: 10px;
+      border-width: 2px;
+      border-color: rgb(100,100,100);
+      border-style: solid;
+      width: 960px;
+      height: 600px;
+      margin-left: 0px;
+    }
+    div.dimension {
+      margin: 0;
+      margin-left: 0;
+      -webkit-box-shadow: 35px 36px 27px -27px rgba(158,158,158,1);
+      -moz-box-shadow: 35px 36px 27px -27px rgba(158,158,158,1);
+      box-shadow: 35px 36px 27px -27px rgba(158,158,158,1);
+      width: 984px;
+    }
+    div.card-front{
+
+    }
+    div.card-back{
+      margin-bottom: 30px;
+  }
     table.scrum-table-values {
       border-collapse: inherit;
     }
@@ -143,10 +176,11 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       window.valueline = valueline;
 
-      var divChart = divCharts.append("div").attr("class","chart row");
-      var divTable = divCharts.append("div").attr("class","row-fluid");
-
+      var divDimension = divCharts.append("div").attr("class","dimension");
+      var divChart = divDimension.append("div").attr("class","chart row card card-front");
       divChart.append("h2").text(dimension);
+      var divTable = divDimension.append("div").attr("class","row-fluid card card-back");
+      divTable.append("h2").text(dimension);
 
       var svg = divChart.append("svg")
           .attr("width", width + margin.left + margin.right)

@@ -23,8 +23,50 @@ h2 {
   font-weight: lighter;
   color: rgb(100,100,100);
 }
+.label {
+  width: 200px;
+  display: inline-block;
+}
 </style>
+<title>Perception of Probability - Calculator</title>
 <body>
+<form>
+  <span class="label">
+  Optimist:
+  </span>
+  <select id="optimist">
+    <option selected="selected">1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>5</option>
+    <option>8</option>
+    <option>13</option>
+    <option>21</option>
+    <option>30</option>
+    <option>100</option>
+  </select>
+  <br/>
+  <span class="label">
+    Pessimist:
+  </span>
+  <select id="pessimist">
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>5</option>
+    <option>8</option>
+    <option>13</option>
+    <option>21</option>
+    <option>30</option>
+    <option selected="selected">100</option>
+  </select>
+  <br/>
+  <span class="label">
+    Probability of the Optimist:
+  </span>
+  <select id="probability">
+  </select>
+</form>
 <!-- load the d3.js library -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
@@ -50,23 +92,45 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
   var dimensions = data.columns.filter( c => c != "probability");
 
-  // dimensionColor = d3. line().curve(d3.curveCardinal)
-  //   .domain([1,dimensions.length/2,dimensions.length])
-  //   .interpolate(d3.interpolateLab)
-  //   .range([d3.rgb("#772200"), d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
+  d3.select("#probability").selectAll("option").data(dimensions).enter().append("option").text( x => x )
 
   var dimensionColor =  d3.scaleSequential(d3.interpolateInferno)
       .domain([dimensions.length,0]);
 
   window.dimensionColor = dimensionColor;
-  dimensions.forEach(
-    ( dimension, key ) => {
+
+  window.dimensions = dimensions;
+
+  var divChart = divCharts.append("div").attr("class","chart");
+  var title = divChart.append("h2");
+
+  function redraw() {
+
+      d3.select("svg").remove();
+
+      var svg = divChart.append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+
+      var dimension = d3.select("#probability").node().value;
+      var key = dimensions.indexOf(dimension);
+
+      var xMin = 1 * d3.select("#optimist").node().value;
+      var xMax = 1 * d3.select("#pessimist").node().value;
 
       // define the line
       var area = d3.area()
           .curve(d3.curveCatmullRom)
           .x(function(d) {
-            return x(d.probability);
+          console.log(d);
+          debugger;
+            v = Math.floor(d.probability * (xMax - xMin) / 100 + xMin);
+            console.log(v);
+            return x(v);
           })
           .y1(
             function(d) {
@@ -78,25 +142,17 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       // define the line
       var valueline = d3.line()
           .curve(d3.curveCatmullRom)
-          .x(function(d) { return x(d.probability); })
+          .x(function(d) { return x(Math.floor(d.probability * (xMax - xMin) / 100 + xMin)); })
           .y(function(d) { return y(d[dimension]); });
 
       window.valueline = valueline;
 
-      var divChart = divCharts.append("div").attr("class","chart");
 
-      divChart.append("h2").text(dimension);
-
-      var svg = divChart.append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
+      title.text(dimension);
 
 
       // Scale the range of the data
-      x.domain([0, 100]);
+      x.domain([xMin, xMax]);
       y.domain([0, 100]);
 
       // gridlines in x axis function
@@ -165,7 +221,10 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .style("text-anchor", "middle")
           .text("Perception");
     }
-  );
+
+    d3.select("#probability").on("change", redraw );
+    d3.select("#optimist").on("change", redraw );
+    d3.select("#pessimist").on("change", redraw );
 });
 </script>
 </body>

@@ -13,7 +13,7 @@ var y = d3.scaleLinear().range([height, 0]);
 var divCharts = d3.select("body").append("div").attr("class","charts container");
 
 // Get the data
-d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/html/data.csv", function(error, data) {
+d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/data/data.csv", function(error, data) {
   if (error) throw error;
   window.data = data;
 

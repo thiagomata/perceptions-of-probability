@@ -101,6 +101,7 @@ select {
       <option  selected="selected">0.95</option>
       <option>0.99</option>
       <option>0.999</option>
+      <option>0.9999</option>
       <option>1</option>
     </select>
   </div>
@@ -126,11 +127,11 @@ var divCharts = d3.select("body").append("div").attr("class","charts");
 function extractXY(data,dimension) {
   return data.map(
     row =>  { return {
-        x: ( 1 * row.probability ) / 100,
+        x: 1 - ( 1 * row.probability ) / 100,
         y: ( 1 * row[ dimension] ) / 100
       }
     }
-  )
+  ).reverse()
 }
 
 function filterXY(xy, topValue) {
@@ -285,7 +286,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       var area = d3.area()
           .curve(d3.curveMonotoneX)
           .x(function(d) {
-            v = 1 * (d.probability * (xMax - xMin) / 100 + xMin);
+            v = 1 * ((100 - d.probability) * (xMax - xMin) / 100 + xMin);
             return x(v);
           })
           .y1(
@@ -298,7 +299,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       // define the line
       var valueline = d3.line()
           //.curve(d3.curveMonotoneX)
-          .x(function(d) { return x(Math.round(d.probability * (xMax - xMin) / 100 + xMin)); })
+          .x(function(d) { return x(((100 - d.probability) * (xMax - xMin) / 100 + xMin)); })
           .y(function(d) { return y(d[dimension]); });
 
       // Scale the range of the data
@@ -340,6 +341,9 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       //     .attr("class", "line")
       //     .attr("d", valueline);
 
+      window.data = data;
+      window.dimension = dimension;
+
       svg.append("path")
           .data([data])
           .attr("class", "area")
@@ -372,10 +376,11 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .style("text-anchor", "middle")
           .text("Perception");
 
+      var confidenceIntervalValues = getConfidenceInterval(data,dimension,confidenceValue, xMin, xMax);
       title.text(
         dimension +
         " - with " + Math.round(confidenceValue * 100 ) + "% of confidence " +
-        " should stay between " + Math.round(confidenceInterval.from) + " and " + Math.round(confidenceInterval.to) + "." +
+        " should stay between " + Math.round(confidenceIntervalValues.from) + " and " + Math.round(confidenceIntervalValues.to) + "." +
         " Most likely, will be " + Math.round(getLikelyValue(data,dimension,xMin,xMax)) + "."
       );
 

@@ -2,6 +2,22 @@
 <meta charset="utf-8">
 <style> /* set the CSS */
 
+body {
+  text-align: center;
+}
+
+.question {
+  padding: 5px;
+}
+
+.question span {
+  text-align: right;
+}
+
+.question select {
+  height: 30px;
+}
+
 .line {
   fill: none;
   stroke: rgb(100,100,100);
@@ -37,52 +53,57 @@ select {
 <title>Perception of Probability - Calculator</title>
 <body>
 <form>
-  <span class="label">
-  Optimist:
-  </span>
-  <select id="optimist">
-    <option selected="selected">1</option>
-    <option>2</option>
-    <option>3</option>
-    <option>5</option>
-    <option>8</option>
-    <option>13</option>
-    <option>21</option>
-    <option>30</option>
-    <option>100</option>
-  </select>
-  <br/>
-  <span class="label">
-    Pessimist:
-  </span>
-  <select id="pessimist">
-    <option>1</option>
-    <option>2</option>
-    <option>3</option>
-    <option>5</option>
-    <option>8</option>
-    <option>13</option>
-    <option>21</option>
-    <option>30</option>
-    <option selected="selected">100</option>
-  </select>
-  <br/>
-  <span class="label">
-    Probability of the Optimist:
-  </span>
-  <select id="probability">
-  </select>
-  <br/>
-  <span class="label">
-    Confidence Interval:
-  </span>
-  <select id="confidence-interval">
-    <option>0.90</option>
-    <option  selected="selected">0.95</option>
-    <option>0.99</option>
-    <option>0.999</option>
-    <option>1</option>
-  </select>
+  <div class="question">
+    <span class="label">
+    Optimist:
+    </span>
+    <select id="optimist">
+      <option selected="selected">1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>5</option>
+      <option>8</option>
+      <option>13</option>
+      <option>21</option>
+      <option>30</option>
+      <option>100</option>
+    </select>
+  </div>
+  <div class="question">
+    <span class="label">
+      Pessimist:
+    </span>
+    <select id="pessimist">
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>5</option>
+      <option>8</option>
+      <option>13</option>
+      <option>21</option>
+      <option>30</option>
+      <option selected="selected">100</option>
+    </select>
+  </div>
+  <div class="question">
+    <span class="label">
+      Probability of the Optimist:
+    </span>
+    <select id="probability">
+    </select>
+  </div>
+  <div class="question">
+    <span class="label">
+      Confidence Interval:
+    </span>
+    <select id="confidence-interval">
+      <option>0.90</option>
+      <option  selected="selected">0.95</option>
+      <option>0.99</option>
+      <option>0.999</option>
+      <option>1</option>
+    </select>
+  </div>
 </form>
 <!-- load the d3.js library -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -182,18 +203,12 @@ function getLikelyValue(data, dimension, minValue = 0, maxValue = 1) {
 // Get the data
 d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/data/data.csv", function(error, data) {
   if (error) throw error;
-  window.data = data;
-
   var dimensions = data.columns.filter( c => c != "probability");
 
   d3.select("#probability").selectAll("option").data(dimensions).enter().append("option").text( x => x )
 
   var dimensionColor =  d3.scaleSequential(d3.interpolateInferno)
       .domain([dimensions.length,0]);
-
-  window.dimensionColor = dimensionColor;
-
-  window.dimensions = dimensions;
 
   var divChart = divCharts.append("div").attr("class","chart");
   var title = divChart.append("h2");
@@ -210,8 +225,6 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
                 "translate(" + margin.left + "," + margin.top + ")");
 
       var dimension = d3.select("#probability").node().value;
-
-      window.dimension = dimension;
 
       var key = dimensions.indexOf(dimension);
 
@@ -287,9 +300,6 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           //.curve(d3.curveMonotoneX)
           .x(function(d) { return x(Math.round(d.probability * (xMax - xMin) / 100 + xMin)); })
           .y(function(d) { return y(d[dimension]); });
-
-      window.valueline = valueline;
-
 
       // Scale the range of the data
       x.domain([xMin, xMax]);

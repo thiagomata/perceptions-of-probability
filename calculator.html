@@ -11,7 +11,7 @@
 .area {
   stroke: rgb(100,100,100);
   stroke-width: 4px;
-  fill: lightsteelblue;
+/*  fill: lightsteelblue; */
 }
 
 .grid line {
@@ -72,6 +72,17 @@ select {
   </span>
   <select id="probability">
   </select>
+  <br/>
+  <span class="label">
+    Confidence Interval:
+  </span>
+  <select id="confidence-interval">
+    <option>0.90</option>
+    <option  selected="selected">0.95</option>
+    <option>0.99</option>
+    <option>0.999</option>
+    <option>1</option>
+  </select>
 </form>
 <!-- load the d3.js library -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -91,6 +102,83 @@ var y = d3.scaleLinear().range([height, 0]);
 
 var divCharts = d3.select("body").append("div").attr("class","charts");
 
+function extractXY(data,dimension) {
+  return data.map(
+    row =>  { return {
+        x: ( 1 * row.probability ) / 100,
+        y: ( 1 * row[ dimension] ) / 100
+      }
+    }
+  )
+}
+
+function filterXY(xy, topValue) {
+  var acc = 0 ;
+  return xy.map(
+    (row) => {
+      var v = row.y;
+      if ( acc > topValue ) {
+        return {
+          x: row.x,
+          y: row.y,
+          z: 0,
+          acc: 1 * acc
+        };
+      }
+
+      if( ( acc + v ) <= topValue ){
+        acc += v;
+        return {
+          x: row.x,
+          y: row.y,
+          z: row.x,
+          acc: 1 * acc
+        };
+      }
+
+      var result = topValue - acc;
+      acc += v;
+      var prop = ( result / v );
+      var rev = 1 - prop;
+      var combine = prop * row.x + rev * ( row.x - 0.05 );
+      return {
+        x: row.x,
+        y: row.y,
+        z: combine,
+        acc: 1 * acc
+      };
+    }
+  )
+}
+
+function getTopMargin(data, dimension, confidence = 0.95) {
+  return filterXY(extractXY(data,dimension), confidence);
+}
+
+function getBottomMargin(data, dimension, confidence = 0.95) {
+  return filterXY(extractXY(data,dimension)
+  .reverse()
+  .map( row => {
+    return {
+      x: 1 - row.x,
+      y: row.y
+    }
+  })
+  ,confidence);
+}
+
+function getConfidenceInterval(data, dimension,confidence = 0.95, minValue = 0, maxValue = 1) {
+  var topProportion    = Math.max.apply(null, getTopMargin(data,dimension,confidence).map( row => row.z ));
+  var bottomProportion = 1 - Math.max.apply(null, getBottomMargin(data,dimension,confidence).map( row => row.z ));
+  return {
+    from: (bottomProportion * maxValue ) + minValue,
+    to: (topProportion * maxValue ) + minValue,
+  }
+}
+
+function getLikelyValue(data, dimension, minValue = 0, maxValue = 1) {
+  return minValue + extractXY(data,dimension).map( r => r.x * r.y ).reduce( (a,b) => a+b ) * maxValue;
+}
 // Get the data
 d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/data/data.csv", function(error, data) {
   if (error) throw error;
@@ -121,21 +209,70 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
 
-
       var dimension = d3.select("#probability").node().value;
+
+      window.dimension = dimension;
+
       var key = dimensions.indexOf(dimension);
 
       var xMin = 1 * d3.select("#optimist").node().value;
       var xMax = 1 * d3.select("#pessimist").node().value;
+      var confidenceValue = 1 * d3.select("#confidence-interval").node().value;
+
+      var defs = svg.append("defs");
+
+      var gradient = defs.append("linearGradient")
+         .attr("id", "svgGradient")
+         .attr("x1", "0%")
+         .attr("x2", "100%")
+         .attr("y1", "0%")
+         .attr("y2", "0%");
+
+      var confidenceInterval = getConfidenceInterval(data,dimension,confidenceValue,0,100);
+      var outOfConfidenceColor = "black";
+      var outOfConfidenceOpacity = 0;
+
+       gradient.append("stop")
+          .attr('class', 'start')
+          .attr("offset", "0%")
+          .attr("stop-color", outOfConfidenceColor)
+          .attr("stop-opacity", outOfConfidenceOpacity);
+
+      gradient.append("stop")
+         .attr('class', 'start')
+         .attr("offset", ( confidenceInterval.from - 1 ) + "%")
+         .attr("stop-color", outOfConfidenceColor)
+         .attr("stop-opacity", outOfConfidenceOpacity);
+
+       gradient.append("stop")
+          .attr('class', 'start')
+          .attr("offset", ( confidenceInterval.from ) + "%")
+          .attr("stop-color", dimensionColor(key))
+          .attr("stop-opacity", 1);
+
+       gradient.append("stop")
+          .attr('class', 'start')
+          .attr("offset", ( confidenceInterval.to  ) + "%")
+          .attr("stop-color", dimensionColor(key))
+          .attr("stop-opacity", 1);
+
+      gradient.append("stop")
+         .attr('class', 'start')
+         .attr("offset", ( confidenceInterval.to + 1 ) + "%")
+         .attr("stop-color", outOfConfidenceColor)
+         .attr("stop-opacity", outOfConfidenceOpacity);
+
+      gradient.append("stop")
+         .attr('class', 'end')
+         .attr("offset", "100%")
+         .attr("stop-color", outOfConfidenceColor)
+         .attr("stop-opacity", outOfConfidenceOpacity);
 
       // define the line
       var area = d3.area()
           .curve(d3.curveMonotoneX)
           .x(function(d) {
-          console.log(d);
-          debugger;
             v = 1 * (d.probability * (xMax - xMin) / 100 + xMin);
-            console.log(v);
             return x(v);
           })
           .y1(
@@ -148,13 +285,10 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       // define the line
       var valueline = d3.line()
           //.curve(d3.curveMonotoneX)
-          .x(function(d) { return x(Math.floor(d.probability * (xMax - xMin) / 100 + xMin)); })
+          .x(function(d) { return x(Math.round(d.probability * (xMax - xMin) / 100 + xMin)); })
           .y(function(d) { return y(d[dimension]); });
 
       window.valueline = valueline;
-
-
-      title.text(dimension);
 
 
       // Scale the range of the data
@@ -199,8 +333,9 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       svg.append("path")
           .data([data])
           .attr("class", "area")
-          .attr("style", "fill:"+dimensionColor(key))
-          .attr("d", area);
+          // .attr("style", "fill:"+dimensionColor(key))
+          .attr("d", area)
+          .attr("fill", "url(#svgGradient)")
       // Add the x Axis
       svg.append("g")
           .attr("transform", "translate(0," + height + ")")
@@ -226,11 +361,21 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .attr("dy", "1em")
           .style("text-anchor", "middle")
           .text("Perception");
+
+      title.text(
+        dimension +
+        " - with " + Math.round(confidenceValue * 100 ) + "% of confidence " +
+        " should stay between " + Math.round(confidenceInterval.from) + " and " + Math.round(confidenceInterval.to) + "." +
+        " Most likely, will be " + Math.round(getLikelyValue(data,dimension,xMin,xMax)) + "."
+      );
+
     }
 
+    d3.select("#confidence-interval").on("change", redraw );
     d3.select("#probability").on("change", redraw );
     d3.select("#optimist").on("change", redraw );
     d3.select("#pessimist").on("change", redraw );
+    redraw();
 });
 </script>
 </body>

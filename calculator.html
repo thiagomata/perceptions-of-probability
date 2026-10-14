@@ -114,6 +114,14 @@ d3.csv('data/data.csv', function(error, data) {
       .y(function(p){return y(p.y * 100);})
       .curve(d3.curveMonotoneX);
     if (lo !== hi) {
+      var guideArea = d3.area()
+        .x(function(p){return x(lo + p.x * (hi - lo));})
+        .y0(height)
+        .y1(function(p){return y(p.y * 100);})
+        .curve(d3.curveMonotoneX);
+      plot.append('path').datum(points).attr('d',guideArea)
+        .attr('fill','#287c68').attr('fill-opacity',.12)
+        .attr('aria-hidden','true');
       plot.append('path').datum(points).attr('d',guide)
         .attr('fill','none').attr('stroke','#287c68')
         .attr('stroke-width',2).attr('stroke-opacity',.3)

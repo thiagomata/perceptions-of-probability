@@ -55,6 +55,7 @@ select {
 <title>Perception of Probability - Calculator</title>
 </head>
 <body>
+<p>This exploratory model maps sampled interpretations of probability phrases onto the estimate range. Intervals use discrete equal-tail quantiles, not measured task completion probabilities. Their mass can exceed the selected coverage because the data is discrete.</p>
 <form>
   <div class="question">
     <span class="label">
@@ -90,14 +91,14 @@ select {
   </div>
   <div class="question">
     <span class="label">
-      Probability of the Optimist:
+      Perceived likelihood of the optimistic estimate:
     </span>
     <select id="probability">
     </select>
   </div>
   <div class="question">
     <span class="label">
-      Confidence Interval:
+      Model-based interval coverage:
     </span>
     <select id="confidence-interval">
       <option>0.90</option>
@@ -127,82 +128,57 @@ var y = d3.scaleLinear().range([height, 0]);
 
 var divCharts = d3.select("body").append("div").attr("class","charts");
 
-function extractXY(data,dimension) {
-  return data.map(
-    row =>  { return {
-        x: 1 - ( 1 * row.probability ) / 100,
-        y: ( 1 * row[ dimension] ) / 100
-      }
-    }
-  ).reverse()
+// Treat the supplied percentages as discrete weights on the sampled grid.
+// Normalize rounded CSV percentages before computing means or quantiles.
+function extractXY(data, dimension) {
+  var points = data.map(function(row) {
+    return { x: 1 - Number(row.probability) / 100, y: Number(row[dimension]) / 100 };
+  }).sort(function(a, b) { return a.x - b.x; });
+  var total = points.reduce(function(sum, point) { return sum + point.y; }, 0);
+  if (!Number.isFinite(total) || total <= 0 || points.some(function(point) {
+    return !Number.isFinite(point.x) || point.x < 0 || point.x > 1 ||
+      !Number.isFinite(point.y) || point.y < 0;
+  })) throw new RangeError('Invalid probability distribution');
+  return points.map(function(point) { return { x: point.x, y: point.y / total }; });
 }
 
-function filterXY(xy, topValue) {
-  var acc = 0 ;
-  return xy.map(
-    (row) => {
-      var v = row.y;
-      if ( acc > topValue ) {
-        return {
-          x: row.x,
-          y: row.y,
-          z: 0,
-          acc: 1 * acc
-        };
-      }
-
-      if( ( acc + v ) <= topValue ){
-        acc += v;
-        return {
-          x: row.x,
-          y: row.y,
-          z: row.x,
-          acc: 1 * acc
-        };
-      }
-
-      var result = topValue - acc;
-      acc += v;
-      var prop = ( result / v );
-      var rev = 1 - prop;
-      var combine = prop * row.x + rev * ( row.x - 0.05 );
-      return {
-        x: row.x,
-        y: row.y,
-        z: combine,
-        acc: 1 * acc
-      };
-    }
-  )
-}
-
-function getTopMargin(data, dimension, confidence = 0.95) {
-  return filterXY(extractXY(data,dimension), confidence);
-}
-
-function getBottomMargin(data, dimension, confidence = 0.95) {
-  return filterXY(extractXY(data,dimension)
-  .reverse()
-  .map( row => {
-    return {
-      x: 1 - row.x,
-      y: row.y
-    }
-  })
-  ,confidence);
-}
-
-function getConfidenceInterval(data, dimension,confidence = 0.95, minValue = 0, maxValue = 1) {
-  var topProportion    = Math.max.apply(null, getTopMargin(data,dimension,confidence).map( row => row.z ));
-  var bottomProportion = 1 - Math.max.apply(null, getBottomMargin(data,dimension,confidence).map( row => row.z ));
-  return {
-    from: (bottomProportion * maxValue ) + minValue,
-    to: (topProportion * maxValue ) + minValue,
+function validateBounds(minValue, maxValue) {
+  if (!Number.isFinite(minValue) || !Number.isFinite(maxValue) || minValue > maxValue) {
+    throw new RangeError('The optimistic estimate must not exceed the pessimistic estimate');
   }
 }
 
-function getLikelyValue(data, dimension, minValue = 0, maxValue = 1) {
-  return minValue + extractXY(data,dimension).map( r => r.x * r.y ).reduce( (a,b) => a+b ) * maxValue;
+function quantile(points, probability) {
+  var support = points.filter(function(point) { return point.y > 0; });
+  if (probability === 0) return support[0].x;
+  var cumulative = 0;
+  for (var i = 0; i < support.length; i++) {
+    cumulative += support[i].y;
+    if (cumulative >= probability - 1e-12) return support[i].x;
+  }
+  return support[support.length - 1].x;
+}
+
+function getConfidenceInterval(data, dimension, confidence = 0.95, minValue = 0, maxValue = 1) {
+  validateBounds(minValue, maxValue);
+  if (!Number.isFinite(confidence) || confidence <= 0 || confidence > 1) {
+    throw new RangeError('Coverage must be greater than zero and at most one');
+  }
+  var points = extractXY(data, dimension);
+  var tail = (1 - confidence) / 2;
+  var span = maxValue - minValue;
+  return {
+    from: minValue + quantile(points, tail) * span,
+    to: minValue + quantile(points, 1 - tail) * span
+  };
+}
+
+function getExpectedValue(data, dimension, minValue = 0, maxValue = 1) {
+  validateBounds(minValue, maxValue);
+  var mean = extractXY(data, dimension).reduce(function(sum, point) {
+    return sum + point.x * point.y;
+  }, 0);
+  return minValue + mean * (maxValue - minValue);
 }
 // Get the data
 d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/data/data.csv", function(error, data) {
@@ -236,6 +212,12 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       var xMax = 1 * d3.select("#pessimist").node().value;
       var confidenceValue = 1 * d3.select("#confidence-interval").node().value;
 
+      if (xMin > xMax) {
+        title.text("The optimistic estimate must not exceed the pessimistic estimate.");
+        d3.select("svg").remove();
+        return;
+      }
+
       var defs = svg.append("defs");
 
       var gradient = defs.append("linearGradient")
@@ -257,7 +239,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       gradient.append("stop")
          .attr('class', 'start')
-         .attr("offset", ( confidenceInterval.from - 1 ) + "%")
+         .attr("offset", Math.max(0, confidenceInterval.from - 1) + "%")
          .attr("stop-color", outOfConfidenceColor)
          .attr("stop-opacity", outOfConfidenceOpacity);
 
@@ -275,7 +257,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
 
       gradient.append("stop")
          .attr('class', 'start')
-         .attr("offset", ( confidenceInterval.to + 1 ) + "%")
+         .attr("offset", Math.min(100, confidenceInterval.to + 1) + "%")
          .attr("stop-color", outOfConfidenceColor)
          .attr("stop-opacity", outOfConfidenceOpacity);
 
@@ -306,7 +288,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .y(function(d) { return y(d[dimension]); });
 
       // Scale the range of the data
-      x.domain([xMin, xMax]);
+      x.domain(xMin === xMax ? [xMin - 1, xMax + 1] : [xMin, xMax]);
       y.domain([0, 100]);
 
       // gridlines in x axis function
@@ -364,7 +346,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
                 "translate(" + (width/2) + " ," +
                                (height + margin.top + 20) + ")")
           .style("text-anchor", "middle")
-          .text("Probability");
+          .text("Estimate");
 
       // Add the y Axis
       svg.append("g")
@@ -377,14 +359,14 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .attr("x",0 - (height / 2))
           .attr("dy", "1em")
           .style("text-anchor", "middle")
-          .text("Perception");
+          .text("Sample weight (%)");
 
       var confidenceIntervalValues = getConfidenceInterval(data,dimension,confidenceValue, xMin, xMax);
       title.text(
         dimension +
-        " - with " + Math.round(confidenceValue * 100 ) + "% of confidence " +
-        " should stay between " + Math.round(confidenceIntervalValues.from) + " and " + Math.round(confidenceIntervalValues.to) + "." +
-        " Most likely, will be " + Math.round(getLikelyValue(data,dimension,xMin,xMax)) + "."
+        " - " + (confidenceValue * 100).toFixed(2).replace(/\.?0+$/, "") + "% model-based interval: " +
+        " between " + Number(confidenceIntervalValues.from.toFixed(2)) + " and " + Number(confidenceIntervalValues.to.toFixed(2)) + "." +
+        " Expected estimate: " + Number(getExpectedValue(data,dimension,xMin,xMax).toFixed(2)) + "."
       );
 
     }

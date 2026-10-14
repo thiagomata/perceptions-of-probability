@@ -101,6 +101,18 @@ python3 scripts/generate-kent-data.py
 
 The generator writes `data/kent-triangular.csv`, integrating triangular probability mass into one-percentage-point bins.
 
+## Code formatting
+
+HTML and JavaScript use Prettier with the repository configuration:
+
+```sh
+npx --yes prettier@3.6.2 --write calculator.html cards.html kent-cards.html js/perceptions.js tests/*.cjs
+```
+
+The Python dataset generator uses four-space indentation and documents the
+triangular model and bin-integration rules. Comments explain modeling decisions
+and non-obvious implementation details.
+
 ## References
 
 - [Uncle Bob’s discussion of estimation](https://youtu.be/p0O1VVqRSK0?t=2222)

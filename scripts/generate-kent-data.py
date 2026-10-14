@@ -1,22 +1,65 @@
-"""Build a modeled CSV, not survey observations, from Kent's proposed scale.
-Source: https://www.cia.gov/resources/csi/static/Words-of-Estimative-Probability.pdf
-Each 1-point bin gets the exact triangular CDF mass over its half-point edges.
-The reference probability is the mode. Certain/Impossible are point masses.
+"""Generate modeled weights from Sherman Kent's proposed probability scale.
+
+Source:
+https://www.cia.gov/resources/csi/static/Words-of-Estimative-Probability.pdf
+
+The triangular shape is our assumption, not observed CIA data. Each one-point
+bin receives the exact CDF mass between its half-point boundaries. The central
+reference value is the mode; Certain and Impossible are point masses.
 """
+
 import csv
 from pathlib import Path
-SCALE = [('Certain',100,100,100),('Almost certain',87,93,99),('Probable',63,75,87),('Chances about even',40,50,60),('Probably not',20,30,40),('Almost certainly not',2,7,12),('Impossible',0,0,0)]
-def cdf(x, a, m, b):
-    if x <= a: return 0.0
-    if x >= b: return 1.0
-    if x <= m: return (x-a)**2 / ((b-a)*(m-a))
-    return 1 - (b-x)**2 / ((b-a)*(b-m))
-with (Path(__file__).resolve().parent.parent/'data/kent-triangular.csv').open('w',newline='') as f:
-    writer=csv.writer(f)
-    writer.writerow(['probability']+[row[0] for row in SCALE])
-    for x in range(101):
-        weights=[]
-        for _,a,m,b in SCALE:
-            mass = float(x==m) if a==b else cdf(min(100,x+.5),a,m,b)-cdf(max(0,x-.5),a,m,b)
-            weights.append(f'{100*mass:.10f}')
-        writer.writerow([x]+weights)
+
+# Each entry contains the phrase, lower bound, mode, and upper bound (percent).
+SCALE = [
+    ("Certain", 100, 100, 100),
+    ("Almost certain", 87, 93, 99),
+    ("Probable", 63, 75, 87),
+    ("Chances about even", 40, 50, 60),
+    ("Probably not", 20, 30, 40),
+    ("Almost certainly not", 2, 7, 12),
+    ("Impossible", 0, 0, 0),
+]
+
+
+def triangular_cdf(value, lower, mode, upper):
+    """Return cumulative probability for a non-degenerate triangle."""
+    if value <= lower:
+        return 0.0
+    if value >= upper:
+        return 1.0
+    if value <= mode:
+        return (value - lower) ** 2 / ((upper - lower) * (mode - lower))
+    return 1 - (upper - value) ** 2 / ((upper - lower) * (upper - mode))
+
+
+def generate_dataset(destination):
+    """Write percentage weights on a 0–100 grid, including endpoint masses."""
+    with destination.open("w", newline="") as output:
+        writer = csv.writer(output, lineterminator="\n")
+        writer.writerow(["probability"] + [entry[0] for entry in SCALE])
+
+        for value in range(101):
+            weights = []
+            for _, lower, mode, upper in SCALE:
+                if lower == upper:
+                    # A degenerate reference range concentrates all mass here.
+                    mass = float(value == mode)
+                else:
+                    # Integrate over the bin instead of sampling its density.
+                    right = triangular_cdf(
+                        min(100, value + 0.5), lower, mode, upper
+                    )
+                    left = triangular_cdf(
+                        max(0, value - 0.5), lower, mode, upper
+                    )
+                    mass = right - left
+                weights.append(f"{100 * mass:.10f}")
+
+            writer.writerow([value] + weights)
+
+
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    generate_dataset(project_root / "data" / "kent-triangular.csv")

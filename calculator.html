@@ -178,6 +178,30 @@ d3.csv('data/data.csv', function(surveyError, surveyData) {
       .attr('height',function(p){return height - y(p.y * 100);}).attr('rx',2)
       .attr('fill',function(p){return lo === hi || (p.x >= normalizedInterval.from - 1e-12 && p.x <= normalizedInterval.to + 1e-12) ? '#287c68' : '#cfdfda';})
       .append('title').text(function(p){return 'Estimate ' + format(lo + p.x * (hi - lo)) + ': ' + format(p.y * 100) + (kent ? '% modeled weight' : '% sample weight');});
+    var expected = getExpectedValue(data, dimension, lo, hi);
+    var expectedX = x(expected);
+    var expectedPosition = hi === lo ? .5 : (expected - lo) / (hi - lo);
+    var expectedWeight = points[0].y;
+    for (var i = 1; i < points.length; i++) {
+      if (expectedPosition <= points[i].x) {
+        var before = points[i - 1], after = points[i];
+        var fraction = (expectedPosition - before.x) / (after.x - before.x);
+        expectedWeight = before.y + fraction * (after.y - before.y);
+        break;
+      }
+      expectedWeight = points[i].y;
+    }
+    var expectedY = y(expectedWeight * 100);
+    plot.append('line').attr('x1',expectedX).attr('x2',expectedX)
+      .attr('y1',expectedY).attr('y2',height)
+      .attr('stroke','#a34b17').attr('stroke-dasharray','4 4').attr('stroke-opacity',.65);
+    plot.append('circle').attr('cx',expectedX).attr('cy',expectedY).attr('r',6)
+      .attr('fill','#a34b17').attr('stroke','white').attr('stroke-width',2)
+      .append('title').text('Expected estimate: ' + format(expected));
+    plot.append('text').attr('x',Math.max(60,Math.min(width - 60,expectedX)))
+      .attr('y',Math.max(12,expectedY - 14)).attr('text-anchor','middle')
+      .style('fill','#8a3d12').style('font-weight','650')
+      .text('Expected: ' + format(expected));
     plot.append('g').attr('transform','translate(0,' + height + ')').call(d3.axisBottom(x).ticks(totalWidth < 600 ? 4 : 8));
     plot.append('g').call(d3.axisLeft(y).ticks(4));
     plot.append('text').attr('x',width/2).attr('y',height+44).attr('text-anchor','middle').text('Estimate');

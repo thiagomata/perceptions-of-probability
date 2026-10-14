@@ -137,7 +137,7 @@ var y = d3.scaleLinear().range([height, 0]);
 var divCharts = d3.select("body").append("div").attr("class","charts container");
 
 // Get the data
-d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/master/data/data.csv", function(error, data) {
+d3.csv("data/data.csv", function(error, data) {
   if (error) throw error;
   window.data = data;
 
@@ -245,7 +245,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
                 "translate(" + (width/2) + " ," +
                                (height + margin.top + 20) + ")")
           .style("text-anchor", "middle")
-          .text("Probability");
+          .text("Interpreted probability (%)");
 
       // Add the y Axis
       svg.append("g")
@@ -258,7 +258,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
           .attr("x",0 - (height / 2))
           .attr("dy", "1em")
           .style("text-anchor", "middle")
-          .text("Perception");
+          .text("Response frequency (%)");
 
       var prob = data.map(
         d => {
@@ -294,9 +294,8 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
               }
             }
           );
-          var expectedValue = valueRange.map(
-            n => n.probability * n.chance
-          ).reduce( (a,b) => a + b );
+          var totalWeight = valueRange.reduce((sum, n) => sum + n.chance, 0);
+          var expectedValue = valueRange.reduce((sum, n) => sum + n.probability * n.chance, 0) / totalWeight;
 
           return {
             from: scrumRange.from,
@@ -313,7 +312,7 @@ d3.csv("https://raw.githubusercontent.com/thiagomata/perceptions-of-probability/
       scrumTableTitle.setAttribute("class","table-title-tr");
       var scrumTableTitleLabel =  document.createElement("td");
       scrumTableTitleLabel.setAttribute("class","table-title-label-td");
-      scrumTableTitleLabel.innerHTML = "<span>Probable Score considering the Optimist and Pessimist values <br/> where the Optimist is " + dimension + "</span>";
+      scrumTableTitleLabel.innerHTML = "<span>Expected estimate considering the Optimist and Pessimist values <br/> where the Optimist is " + dimension + "</span>";
       scrumTableTitleLabel.setAttribute("colspan",scrumValues.length+2);
       scrumTableTitle.appendChild(scrumTableTitleLabel);
       scrumTable.appendChild(scrumTableTitle);

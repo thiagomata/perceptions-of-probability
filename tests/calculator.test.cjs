@@ -88,3 +88,19 @@ test('all real CSV distributions yield bounded means and ordered intervals', () 
     assert.ok(interval.from >= 13 && interval.to <= 21 && interval.from <= interval.to, dimension);
   }
 });
+
+test('Kent modeled CSV is normalized and preserves reference means and bounds', () => {
+  const lines = readFileSync(join(__dirname, '../data/kent-triangular.csv'), 'utf8').trim().split(/\r?\n/);
+  const cols = lines.shift().split(',');
+  const data = lines.map(line => Object.fromEntries(line.split(',').map((v,i)=>[cols[i],v])));
+  const modes = [100,93,75,50,30,7,0];
+  const ranges = [[100,100],[87,99],[63,87],[40,60],[20,40],[2,12],[0,0]];
+  cols.slice(1).forEach((dimension,i)=>{
+    const total = data.reduce((sum,row)=>sum+Number(row[dimension]),0);
+    assert.ok(Math.abs(total-100)<1e-7);
+    // All reference triangles are symmetric; reversing probability maps mean to 100-mode.
+    near(calculator.getExpectedValue(data,dimension,0,100),100-modes[i]);
+    const interval=calculator.getConfidenceInterval(data,dimension,1,0,100);
+    near(interval.from,100-ranges[i][1]); near(interval.to,100-ranges[i][0]);
+  });
+});

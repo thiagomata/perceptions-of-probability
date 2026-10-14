@@ -5,7 +5,7 @@
 <body><main>
 <header><a href="./">Perceptions of Probability</a><div class="eyebrow">An experiment in estimation</div><h1>Explore the uncertainty<br>behind an estimate.</h1><p>Choose a best-case estimate, a worst-case estimate, and a likelihood phrase. Explore survey-based distributions or compare Kent’s proposed probability scale.</p></header>
 <form id="controls" onsubmit="return false">
-<div class="source-control"><label for="reference-source">Reference source</label><select id="reference-source"><option value="survey">Survey responses</option><option value="kent">Sherman Kent’s CIA scale</option></select><p class="hint" id="source-note">Survey-based distributions mapped onto your estimates.</p></div>
+<div class="source-control"><label for="reference-source">Reference source</label><select id="reference-source"><option value="survey">Survey responses</option><option value="kent">Kent scale — triangular model</option></select><p class="hint" id="source-note">Survey-based distributions mapped onto your estimates.</p></div>
 <div><label for="optimist">Optimistic estimate</label><input id="optimist" type="number" min="0" step="any" value="13" required><p class="hint">Your best-case scenario.</p></div>
 <div><label for="pessimist">Pessimistic estimate</label><input id="pessimist" type="number" min="0" step="any" value="21" required><p class="hint">Your worst-case scenario. Use the same units.</p></div>
 <div><label for="probability">Likelihood of the optimistic estimate</label><select id="probability" disabled></select></div>
@@ -17,8 +17,8 @@
 <div><div class="result-label" id="interval-label">95% model-based interval</div><div class="result-value" id="interval">—</div><div class="result-note" id="interval-note">A range within this exploratory model.</div></div>
 </section>
 <section class="chart-panel" id="survey-chart"><h2>How the estimates are distributed</h2><p class="hint">Based on probability-perception survey work, rather than an arbitrary curve. <a href="https://github.com/zonination/perceptions">Read the source and background</a>.</p><p class="legend"><span class="dot"></span>Samples inside the selected interval · pale bars show the remaining samples. The faint curve is a visual guide.</p><div class="chart"></div></section>
-<details class="kent-reference"><summary>Compare with Sherman Kent’s probability scale</summary><p>In <a href="https://www.cia.gov/resources/csi/static/Words-of-Estimative-Probability.pdf#page=8">Words of Estimative Probability (1964)</a>, Kent proposed numerical meanings for a small set of likelihood expressions. These are reference probabilities with approximate ranges, rather than sampled distributions.</p><div class="reference-table"><table><caption>Kent’s proposed scale · probability percentages, not estimate units</caption><thead><tr><th scope="col">Expression</th><th scope="col">Reference probability</th><th scope="col">Approximate range</th></tr></thead><tbody><tr><th scope="row">Certain</th><td>100%</td><td>100%</td></tr><tr><th scope="row">Almost certain</th><td>93%</td><td>87–99%</td></tr><tr><th scope="row">Probable</th><td>75%</td><td>63–87%</td></tr><tr><th scope="row">Chances about even</th><td>50%</td><td>40–60%</td></tr><tr><th scope="row">Probably not</th><td>30%</td><td>20–40%</td></tr><tr><th scope="row">Almost certainly not</th><td>7%</td><td>2–12%</td></tr><tr><th scope="row">Impossible</th><td>0%</td><td>0%</td></tr></tbody></table></div><p>The calculator above continues to use the probability-perception survey data. Kent’s ranges are shown for comparison only: they are not confidence intervals and do not specify a curve or probability mass within each range.</p></details>
-<details><summary>Research background and model assumptions</summary><p>This experiment builds on <a href="https://github.com/zonination/perceptions">zonination’s Perceptions of Probability and Numbers</a>, which reports survey responses from Reddit’s r/SampleSize community. Respondents assigned numerical probabilities to phrases such as “Almost Certainly” and “About Even.” The survey was inspired by Sherman Kent’s work on communicating uncertainty; it is not the original CIA study.</p><p>The research provides the motivation for using phrase-specific distributions. Mapping those distributions between your optimistic and pessimistic estimates is this project’s modeling choice, rather than a finding of the survey.</p><p>The model maps sampled interpretations of probability phrases onto your estimate range. It treats the CSV percentages as discrete weights, normalizes rounding differences, and calculates equal-tail quantiles.</p><p>This is an exploratory mapping, not a measured forecast of task completion. The selected coverage describes the model, not a guarantee about your work. Because the samples are discrete, the interval can contain more mass than the selected coverage. Values are shown to two decimal places.</p></details>
+<details class="kent-reference"><summary>Compare with Sherman Kent’s probability scale</summary><p>In <a href="https://www.cia.gov/resources/csi/static/Words-of-Estimative-Probability.pdf#page=8">Words of Estimative Probability (1964)</a>, Kent proposed numerical meanings for a small set of likelihood expressions. These are reference probabilities with approximate ranges, rather than sampled distributions.</p><div class="reference-table"><table><caption>Kent’s proposed scale · probability percentages, not estimate units</caption><thead><tr><th scope="col">Expression</th><th scope="col">Reference probability</th><th scope="col">Approximate range</th></tr></thead><tbody><tr><th scope="row">Certain</th><td>100%</td><td>100%</td></tr><tr><th scope="row">Almost certain</th><td>93%</td><td>87–99%</td></tr><tr><th scope="row">Probable</th><td>75%</td><td>63–87%</td></tr><tr><th scope="row">Chances about even</th><td>50%</td><td>40–60%</td></tr><tr><th scope="row">Probably not</th><td>30%</td><td>20–40%</td></tr><tr><th scope="row">Almost certainly not</th><td>7%</td><td>2–12%</td></tr><tr><th scope="row">Impossible</th><td>0%</td><td>0%</td></tr></tbody></table></div><p>Kent’s original ranges are not confidence intervals and do not specify a distribution. In Kent model mode, we assume a triangular shape with these endpoints and the reference probability as its mode. This added shape is our assumption, not a result of Kent’s work. Certain and Impossible use point masses.</p></details>
+<details><summary>Research background and model assumptions</summary><p>This experiment builds on <a href="https://github.com/zonination/perceptions">zonination’s Perceptions of Probability and Numbers</a>, which reports survey responses from Reddit’s r/SampleSize community. Respondents assigned numerical probabilities to phrases such as “Almost Certainly” and “About Even.” The survey was inspired by Sherman Kent’s work on communicating uncertainty; it is not the original CIA study.</p><p>The research provides the motivation for using phrase-specific distributions. Mapping those distributions between your optimistic and pessimistic estimates is this project’s modeling choice, rather than a finding of the survey.</p><p>Survey mode maps sampled interpretations of probability phrases onto your estimate range. Kent mode uses a constructed triangular distribution, discretized into one-percentage-point bins by integrating its probability mass. Both sources are mapped onto your optimistic and pessimistic estimates. It treats the CSV percentages as discrete weights, normalizes rounding differences, and calculates equal-tail quantiles.</p><p>This is an exploratory mapping, not a measured forecast of task completion. The selected coverage describes the model, not a guarantee about your work. Because the samples are discrete, the interval can contain more mass than the selected coverage. Values are shown to two decimal places.</p></details>
 <footer><a href="https://github.com/thiagomata/perceptions-of-probability">Source code and background</a></footer>
 </main><script>
 function extractXY(data, dimension) {
@@ -83,7 +83,10 @@ var kentScale = [
 // Get the data
 var chart = d3.select('.chart');
 var statusMessage = document.getElementById('status');
-d3.csv('data/data.csv', function(error, data) {
+d3.csv('data/data.csv', function(surveyError, surveyData) {
+  if (surveyError) { statusMessage.textContent = 'The survey data could not be loaded. Please reload to try again.'; return; }
+  d3.csv('data/kent-triangular.csv', function(error, kentData) {
+  var data = surveyData;
   if (error) { statusMessage.textContent = 'The probability data could not be loaded. Please reload to try again.'; return; }
   var dimensions = data.columns.filter(function(c) { return c !== 'probability'; });
   d3.select('#probability').selectAll('option').data(dimensions).enter().append('option').text(function(d) { return d; });
@@ -107,23 +110,14 @@ d3.csv('data/data.csv', function(error, data) {
   sourceSelect.addEventListener('change',switchSource);
   function redraw() {
     var kent = sourceSelect.value === 'kent';
-    ['optimist','pessimist','confidence-interval'].forEach(function(id){document.getElementById(id).disabled = kent;});
-    document.querySelector('label[for="probability"]').textContent = kent ? 'Likelihood expression' : 'Likelihood of the optimistic estimate';
+    document.querySelector('label[for="probability"]').textContent = 'Likelihood of the optimistic estimate';
     document.getElementById('source-note').textContent = kent
-      ? 'Reference probabilities only. Estimate inputs and coverage do not apply to this scale.'
+      ? 'A triangular shape constructed from Kent’s bounds and central value—not observed CIA data.'
       : 'Survey-based distributions mapped onto your estimates.';
-    document.getElementById('survey-chart').hidden = kent;
-    if (kent) {
-      var reference = kentScale.find(function(row){return row.phrase === phraseSelect.value;});
-      statusMessage.textContent = '';
-      document.getElementById('expected-label').textContent = 'Reference probability';
-      document.getElementById('expected').textContent = reference.probability + '%';
-      document.getElementById('expected-note').textContent = 'Kent’s proposed meaning for this expression.';
-      document.getElementById('interval-label').textContent = 'Approximate reference range';
-      document.getElementById('interval').textContent = reference.from + '% – ' + reference.to + '%';
-      document.getElementById('interval-note').textContent = 'A proposed range, not a distribution or confidence interval.';
-      return;
-    }
+    data = kent ? kentData : surveyData;
+    document.querySelector('#survey-chart .hint').innerHTML = kent
+      ? 'Modeled weights from Kent’s proposed scale, with an assumed triangular shape. <a href="https://www.cia.gov/resources/csi/static/Words-of-Estimative-Probability.pdf#page=8">Original reference</a>.'
+      : 'Based on probability-perception survey work, rather than an arbitrary curve. <a href="https://github.com/zonination/perceptions">Read the source and background</a>.';
     document.getElementById('expected-label').textContent = 'Expected estimate';
     document.getElementById('expected-note').textContent = 'Weighted mean, not the most likely value.';
     document.getElementById('interval-note').textContent = 'A range within this exploratory model.';
@@ -177,22 +171,23 @@ d3.csv('data/data.csv', function(error, data) {
         .attr('stroke-width',2).attr('stroke-opacity',.3)
         .attr('aria-hidden','true');
     }
-    var barWidth = Math.max(2, width / 30);
+    var barWidth = Math.max(2, width / (points.length * 1.4));
     plot.selectAll('rect').data(points).enter().append('rect')
       .attr('x',function(p){return Math.max(0, Math.min(width - barWidth, x(lo + p.x * (hi - lo)) - barWidth / 2));})
       .attr('y',function(p){return y(p.y * 100);}).attr('width',barWidth)
       .attr('height',function(p){return height - y(p.y * 100);}).attr('rx',2)
       .attr('fill',function(p){return lo === hi || (p.x >= normalizedInterval.from - 1e-12 && p.x <= normalizedInterval.to + 1e-12) ? '#287c68' : '#cfdfda';})
-      .append('title').text(function(p){return 'Estimate ' + format(lo + p.x * (hi - lo)) + ': ' + format(p.y * 100) + '% sample weight';});
+      .append('title').text(function(p){return 'Estimate ' + format(lo + p.x * (hi - lo)) + ': ' + format(p.y * 100) + (kent ? '% modeled weight' : '% sample weight');});
     plot.append('g').attr('transform','translate(0,' + height + ')').call(d3.axisBottom(x).ticks(totalWidth < 600 ? 4 : 8));
     plot.append('g').call(d3.axisLeft(y).ticks(4));
     plot.append('text').attr('x',width/2).attr('y',height+44).attr('text-anchor','middle').text('Estimate');
-    plot.append('text').attr('transform','rotate(-90)').attr('x',-height/2).attr('y',-45).attr('text-anchor','middle').text('Sample weight (%)');
+    plot.append('text').attr('transform','rotate(-90)').attr('x',-height/2).attr('y',-45).attr('text-anchor','middle').text(kent ? 'Modeled weight (%)' : 'Sample weight (%)');
   }
   document.getElementById('controls').addEventListener('input',function(event){if(event.target !== sourceSelect) redraw();});
   document.getElementById('controls').addEventListener('change',function(event){if(event.target !== sourceSelect) redraw();});
   var resizeTimer;
   window.addEventListener('resize',function(){clearTimeout(resizeTimer);resizeTimer=setTimeout(redraw,100);});
   redraw();
+  });
 });
 </script></body></html>

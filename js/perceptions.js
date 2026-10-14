@@ -1,3 +1,10 @@
+function getCardExpectedValue(data, dimension, minValue, maxValue) {
+  var total = data.reduce((sum, row) => sum + Number(row[dimension]), 0);
+  if (total <= 0 || !Number.isFinite(total) || minValue > maxValue) throw new RangeError('Invalid card inputs');
+  return data.reduce((sum, row) => sum +
+    (minValue + (1 - Number(row.probability) / 100) * (maxValue - minValue)) * Number(row[dimension]), 0) / total;
+}
+
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 20, bottom: 50, left: 70},
     width = 960 - margin.left - margin.right,
@@ -13,7 +20,7 @@ var y = d3.scaleLinear().range([height, 0]);
 var divCharts = d3.select("body").append("div").attr("class","charts container");
 
 // Get the data
-d3.csv("data/data.csv", function(error, data) {
+d3.csv(window.cardDataSource || "data/data.csv", function(error, data) {
   if (error) throw error;
   window.data = data;
 
@@ -55,6 +62,10 @@ d3.csv("data/data.csv", function(error, data) {
       var divDimension = divCharts.append("div").attr("class","dimension");
       var divChart = divDimension.append("div").attr("class","chart row card card-front");
       divChart.append("h2").text(dimension);
+      if (window.cardReferences && window.cardReferences[dimension]) {
+        var reference = window.cardReferences[dimension];
+        divChart.append("p").text("Kent reference: " + reference.value + "%; approximate range " + reference.from + "–" + reference.to + "%. " + (reference.from === reference.to ? "Point mass" : "Triangular shape assumed") + "; not observed CIA data.");
+      }
       var divTable = divDimension.append("div").attr("class","row-fluid card card-back");
       divTable.append("h2").text(dimension);
 
@@ -134,7 +145,7 @@ d3.csv("data/data.csv", function(error, data) {
           .attr("x",0 - (height / 2))
           .attr("dy", "1em")
           .style("text-anchor", "middle")
-          .text("Response frequency (%)");
+          .text(window.cardWeightLabel || "Response frequency (%)");
 
       var prob = data.map(
         d => {
@@ -161,22 +172,12 @@ d3.csv("data/data.csv", function(error, data) {
 
       var crossScrumValues = crossScrumRanges.map(
         (scrumRange) => {
-          var valueRange = prob.map(
-            p => {
-              return {
-                probability: scrumRange.from +
-                  p.probability * ( scrumRange.to - scrumRange.from),
-                chance: p.chance
-              }
-            }
-          );
-          var totalWeight = valueRange.reduce((sum, n) => sum + n.chance, 0);
-          var expectedValue = valueRange.reduce((sum, n) => sum + n.probability * n.chance, 0) / totalWeight;
+          var expectedValue = getCardExpectedValue(data, dimension, scrumRange.from, scrumRange.to);
 
           return {
             from: scrumRange.from,
             to: scrumRange.to,
-            value: Math.round( expectedValue )
+            value: Math.round(expectedValue + 1e-10)
           }
         }
       );

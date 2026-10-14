@@ -10,9 +10,14 @@ outcomes, and the chance of each one of them.
 
 The problem is to properly describe a probabilistic shape demands to much
 effort and to many interactions. So, companies tend to avoid this approach.
-One [study from the Sherman Kent CIA about perceptions of probabilistic](https://github.com/zonination/perceptions) shows
-how popular probabilistic terms are perceived and presents a probabilistic
-curve to each term.
+This project builds on [zonination’s Perceptions of Probability and Numbers](https://github.com/zonination/perceptions),
+a survey of how Reddit’s r/SampleSize respondents assign numerical probabilities
+to verbal likelihood phrases. That survey was inspired by Sherman Kent’s work
+on communicating uncertainty; it is not the original CIA study.
+
+Using phrase-specific distributions is grounded in that probability-perception
+work. Mapping them onto optimistic and pessimistic task estimates is this
+project’s exploratory modeling choice, not a validated forecast of task outcomes.
 
 This project describes how to draft a task complexity probabilistic shape
 using only 3 simple questions:
